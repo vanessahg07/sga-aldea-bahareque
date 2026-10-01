@@ -8,7 +8,7 @@ Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sist
 
 | Nombre | Usuario GitHub |
 |---|---|
-| _(pendiente)_ | |
+| _Vanessa Henao Gomez_ |vanessahg07 |
 
 ## Entrega 1 — Modelado del dominio
 
