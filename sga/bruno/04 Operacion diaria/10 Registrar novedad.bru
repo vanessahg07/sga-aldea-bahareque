@@ -1,0 +1,22 @@
+meta {
+  name: Registrar novedad
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/apartamentos/BH-201/novedades
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenServicio}}
+}
+
+body:json {
+  {
+    "descripcion": "Falta una toalla de baño",
+    "gravedad": "BAJA"
+  }
+}

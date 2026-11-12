@@ -1,0 +1,21 @@
+meta {
+  name: Servicio no puede declarar fuera de servicio (403)
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{baseUrl}}/api/apartamentos/BH-201/estado-operativo
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenServicio}}
+}
+
+body:json {
+  {
+    "estado": "FUERA_DE_SERVICIO"
+  }
+}

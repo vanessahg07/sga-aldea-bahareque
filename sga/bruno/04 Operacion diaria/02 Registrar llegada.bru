@@ -1,0 +1,15 @@
+meta {
+  name: Registrar llegada
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/{{idLlegada}}/llegada
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}

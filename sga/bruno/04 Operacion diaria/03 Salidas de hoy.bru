@@ -1,0 +1,26 @@
+meta {
+  name: Salidas de hoy
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/reservas/salidas?fecha={{hoy}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("hoy", dia(0));
+  bru.setVar("entrada", dia(45));
+  bru.setVar("salida", dia(48));
+}
+
+script:post-response {
+  if (res.body.length) { bru.setVar("idSalida", res.body[0].id); bru.setVar("saldoSalida", res.body[0].saldo); }
+}

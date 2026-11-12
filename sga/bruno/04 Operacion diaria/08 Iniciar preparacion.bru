@@ -1,0 +1,21 @@
+meta {
+  name: Iniciar preparacion
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/api/apartamentos/BH-201/estado-operativo
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenServicio}}
+}
+
+body:json {
+  {
+    "estado": "EN_PREPARACION"
+  }
+}

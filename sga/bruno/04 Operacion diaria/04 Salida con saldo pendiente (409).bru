@@ -1,0 +1,15 @@
+meta {
+  name: Salida con saldo pendiente (409)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/{{idSalida}}/salida
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}

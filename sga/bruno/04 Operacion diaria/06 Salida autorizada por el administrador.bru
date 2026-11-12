@@ -1,0 +1,21 @@
+meta {
+  name: Salida autorizada por el administrador
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/{{idSalida}}/salida
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "motivoAutorizacion": "El huésped paga el saldo por transferencia mañana"
+  }
+}

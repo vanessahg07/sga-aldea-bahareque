@@ -1,0 +1,22 @@
+meta {
+  name: Cargar servicio adicional
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/{{idSalida}}/folio/servicios
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}
+
+body:json {
+  {
+    "codigoServicio": "TOUR_CAFE",
+    "cantidad": 2
+  }
+}
