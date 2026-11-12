@@ -1,0 +1,18 @@
+meta {
+  name: Calendario de disponibilidad
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/apartamentos/BH-201/calendario?desde={{hoy}}&hasta={{salida}}
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("hoy", dia(0));
+  bru.setVar("entrada", dia(45));
+  bru.setVar("salida", dia(48));
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Buscar disponibilidad
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/disponibilidad/busqueda?pagina=0
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "entrada": "{{entrada}}",
+    "salida": "{{salida}}",
+    "fechasNacimiento": ["1990-05-10", "1989-08-04", "2022-01-15"],
+    "caracteristicas": []
+  }
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("hoy", dia(0));
+  bru.setVar("entrada", dia(45));
+  bru.setVar("salida", dia(48));
+}
