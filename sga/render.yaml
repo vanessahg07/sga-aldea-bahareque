@@ -1,0 +1,23 @@
+# Blueprint de Render (plan gratuito): crea el servicio web a partir del Dockerfile.
+# Los secretos se cargan en el panel de Render; nunca se escriben aquí.
+services:
+  - type: web
+    name: sga-aldea-bahareque
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/alojamiento
+    envVars:
+      - key: SGA_JWT_SECRETO
+        generateValue: true
+      - key: SGA_CONTRASENA_DEMO
+        sync: false
+      - key: SGA_CREDENCIAL_CANAL_DEMO
+        sync: false
+      - key: SGA_IA_HABILITADA
+        value: "true"
+      - key: SGA_IA_PROVEEDOR
+        value: simulado
+      - key: SGA_NOTIFICACIONES
+        value: memoria
+      - key: SGA_IMAGENES
+        value: local
