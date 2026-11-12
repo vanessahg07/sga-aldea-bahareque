@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect width="1200" height="800" fill="#D8E3EA"/>
+<circle cx="930" cy="170" r="70" fill="#C9A55A" opacity="0.8"/>
+<path d="M0 420 Q250 250 520 360 T1200 300 V800 H0Z" fill="#8FA89A"/>
+<path d="M0 520 Q300 400 640 500 T1200 470 V800 H0Z" fill="#5E7D5A"/>
+<path d="M0 640 Q400 560 800 640 T1200 610 V800 H0Z" fill="#34533A"/>
+<line x1="300" y1="560" x2="300" y2="240" stroke="#8B5E3C" stroke-width="8"/><path d="M300 240 q-60 10 -90 50 M300 240 q60 10 90 50 M300 240 q-30 -40 -80 -40 M300 240 q30 -40 80 -40" stroke="#34533A" stroke-width="10" fill="none" stroke-linecap="round"/><line x1="820" y1="600" x2="820" y2="220" stroke="#8B5E3C" stroke-width="8"/><path d="M820 220 q-60 10 -90 50 M820 220 q60 10 90 50 M820 220 q-30 -40 -80 -40 M820 220 q30 -40 80 -40" stroke="#34533A" stroke-width="10" fill="none" stroke-linecap="round"/><line x1="1010" y1="620" x2="1010" y2="360" stroke="#8B5E3C" stroke-width="8"/><path d="M1010 360 q-60 10 -90 50 M1010 360 q60 10 90 50 M1010 360 q-30 -40 -80 -40 M1010 360 q30 -40 80 -40" stroke="#34533A" stroke-width="10" fill="none" stroke-linecap="round"/>
+<rect x="80" y="690" width="420" height="16" rx="8" fill="#C9A55A"/>
+<text x="90" y="760" font-family="Georgia, serif" font-size="36" fill="#FFFDF8">Vista desde Palma de Cera</text>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect width="1200" height="800" fill="#F5F0E6"/>
+<rect x="0" y="600" width="1200" height="200" fill="#8B5E3C"/>
+<rect x="700" y="120" width="360" height="300" fill="#D8E3EA" stroke="#1F7A7A" stroke-width="14"/>
+<path d="M700 330 Q820 250 1060 300 V420 H700Z" fill="#5E7D5A"/>
+<line x1="880" y1="120" x2="880" y2="420" stroke="#1F7A7A" stroke-width="8"/>
+<rect x="140" y="430" width="480" height="170" rx="16" fill="#FFFDF8"/>
+<rect x="140" y="360" width="480" height="90" rx="20" fill="#1F7A7A"/>
+<rect x="170" y="400" width="150" height="60" rx="14" fill="#FFFDF8"/>
+<rect x="440" y="400" width="150" height="60" rx="14" fill="#FFFDF8"/>
+<rect x="140" y="520" width="480" height="30" fill="#B4532F"/>
+<rect x="690" y="500" width="110" height="100" fill="#C9A55A"/>
+<rect x="720" y="440" width="50" height="60" fill="#B4532F"/>
+<text x="600" y="720" text-anchor="middle" font-family="Georgia, serif" font-size="40" fill="#FFFDF8">Barranquero</text>
+</svg>
