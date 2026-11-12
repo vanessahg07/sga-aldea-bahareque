@@ -1,0 +1,23 @@
+meta {
+  name: Cancelacion repetida no falla
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/api/canal/reservas/{{idExterno}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Canal: {{codigoCanal}}
+  X-Credencial-Canal: {{credencialCanal}}
+}
+
+tests {
+  test("200 YA_CANCELADA", () => {
+    expect(res.status).to.equal(200);
+    expect(res.body.resultado).to.equal("YA_CANCELADA");
+  });
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Consultar disponibilidad
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/canal/disponibilidad?entrada={{entradaCanal}}&salida={{salidaCanal}}&personas=2
+  body: none
+  auth: none
+}
+
+headers {
+  X-Canal: {{codigoCanal}}
+  X-Credencial-Canal: {{credencialCanal}}
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  if (!bru.getVar("entradaCanal")) {
+    bru.setVar("entradaCanal", dia(90));
+    bru.setVar("salidaCanal", dia(93));
+  }
+}
+
+tests {
+  test("200 con los apartamentos disponibles", () => {
+    expect(res.status).to.equal(200);
+    expect(res.body.disponibles.length).to.be.greaterThan(0);
+  });
+}

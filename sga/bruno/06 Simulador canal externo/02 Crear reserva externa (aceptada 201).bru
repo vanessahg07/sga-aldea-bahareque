@@ -1,0 +1,57 @@
+meta {
+  name: Crear reserva externa (aceptada 201)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/canal/reservas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "idExterno": "{{idExterno}}",
+    "codigoApartamento": "BH-203",
+    "entrada": "{{entradaCanal}}",
+    "salida": "{{salidaCanal}}",
+    "horaEstimadaLlegada": "15:30",
+    "titular": {
+      "nombre": "Oliver Smith",
+      "documento": "P-123456",
+      "correo": "oliver.smith@mail.com",
+      "telefono": "+44 20 7946 0000",
+      "fechaNacimiento": "1985-03-02"
+    },
+    "acompanantes": [{"nombre": "Emma Smith", "fechaNacimiento": "1987-07-09"}]
+  }
+}
+
+headers {
+  X-Canal: {{codigoCanal}}
+  X-Credencial-Canal: {{credencialCanal}}
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  // Cada ejecución del simulador usa un identificador nuevo y fechas libres.
+  const desplazamiento = 90 + Math.floor(Math.random() * 200);
+  bru.setVar("entradaCanal", dia(desplazamiento));
+  bru.setVar("salidaCanal", dia(desplazamiento + 3));
+  bru.setVar("entradaChoque", dia(desplazamiento + 1));
+  bru.setVar("salidaChoque", dia(desplazamiento + 4));
+  bru.setVar("idExterno", "VE-" + Date.now());
+}
+
+script:post-response {
+  if (res.body.reserva) bru.setVar("idReservaExterna", res.body.reserva.id);
+}
+
+tests {
+  test("201 ACEPTADA con canal EXTERNO", () => {
+    expect(res.status).to.equal(201);
+    expect(res.body.resultado).to.equal("ACEPTADA");
+    expect(res.body.reserva.canal).to.equal("EXTERNO");
+  });
+}

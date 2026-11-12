@@ -1,0 +1,23 @@
+meta {
+  name: Credencial invalida (401)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/canal/disponibilidad?entrada={{entradaCanal}}&salida={{salidaCanal}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Canal: {{codigoCanal}}
+  X-Credencial-Canal: credencial-equivocada
+}
+
+tests {
+  test("401 CREDENCIAL_CANAL_INVALIDA", () => {
+    expect(res.status).to.equal(401);
+    expect(res.body.codigo).to.equal("CREDENCIAL_CANAL_INVALIDA");
+  });
+}

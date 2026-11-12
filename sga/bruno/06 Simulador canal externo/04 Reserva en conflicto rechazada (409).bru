@@ -1,0 +1,46 @@
+meta {
+  name: Reserva en conflicto rechazada (409)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/canal/reservas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "idExterno": "{{idExternoChoque}}",
+    "codigoApartamento": "BH-203",
+    "entrada": "{{entradaChoque}}",
+    "salida": "{{salidaChoque}}",
+    "horaEstimadaLlegada": "15:30",
+    "titular": {
+      "nombre": "Charlotte Brown",
+      "documento": "P-123456",
+      "correo": "oliver.smith@mail.com",
+      "telefono": "+44 20 7946 0000",
+      "fechaNacimiento": "1985-03-02"
+    },
+    "acompanantes": [{"nombre": "Emma Smith", "fechaNacimiento": "1987-07-09"}]
+  }
+}
+
+headers {
+  X-Canal: {{codigoCanal}}
+  X-Credencial-Canal: {{credencialCanal}}
+}
+
+script:pre-request {
+  bru.setVar("idExternoChoque", bru.getVar("idExterno") + "-B");
+}
+
+tests {
+  test("RN-18: 409, se registra el conflicto y no se crea reserva", () => {
+    expect(res.status).to.equal(409);
+    expect(res.body.resultado).to.equal("RECHAZADA_CONFLICTO");
+    expect(res.body.conflicto.motivo).to.equal("NOCHES_NO_DISPONIBLES");
+  });
+}

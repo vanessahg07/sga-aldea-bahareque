@@ -1,0 +1,42 @@
+meta {
+  name: Mensaje repetido no duplica (200)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/canal/reservas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "idExterno": "{{idExterno}}",
+    "codigoApartamento": "BH-203",
+    "entrada": "{{entradaCanal}}",
+    "salida": "{{salidaCanal}}",
+    "horaEstimadaLlegada": "15:30",
+    "titular": {
+      "nombre": "Oliver Smith",
+      "documento": "P-123456",
+      "correo": "oliver.smith@mail.com",
+      "telefono": "+44 20 7946 0000",
+      "fechaNacimiento": "1985-03-02"
+    },
+    "acompanantes": [{"nombre": "Emma Smith", "fechaNacimiento": "1987-07-09"}]
+  }
+}
+
+headers {
+  X-Canal: {{codigoCanal}}
+  X-Credencial-Canal: {{credencialCanal}}
+}
+
+tests {
+  test("RN-19: 200 DUPLICADA con la misma reserva", () => {
+    expect(res.status).to.equal(200);
+    expect(res.body.resultado).to.equal("DUPLICADA");
+    expect(res.body.reserva.id).to.equal(bru.getVar("idReservaExterna"));
+  });
+}
