@@ -1,0 +1,28 @@
+meta {
+  name: Definir imagenes
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/apartamentos/BH-401/imagenes
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  [
+    {
+      "url": "https://picsum.photos/seed/bh-401-1/1200/800",
+      "principal": true
+    },
+    {
+      "url": "https://picsum.photos/seed/bh-401-2/1200/800",
+      "principal": false
+    }
+  ]
+}

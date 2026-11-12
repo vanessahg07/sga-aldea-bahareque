@@ -1,0 +1,35 @@
+meta {
+  name: Publicar nueva version de la politica
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/politicas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "tramos": [
+      {
+        "diasAntelacionMinimos": 15,
+        "porcentajeRetencion": 0
+      },
+      {
+        "diasAntelacionMinimos": 7,
+        "porcentajeRetencion": 30
+      },
+      {
+        "diasAntelacionMinimos": 0,
+        "porcentajeRetencion": 60
+      }
+    ],
+    "porcentajeRetencionNoShow": 30
+  }
+}

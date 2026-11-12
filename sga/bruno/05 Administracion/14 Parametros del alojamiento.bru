@@ -1,0 +1,31 @@
+meta {
+  name: Parametros del alojamiento
+  type: http
+  seq: 14
+}
+
+put {
+  url: {{baseUrl}}/api/alojamiento/parametros
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "umbralEdadFacturable": 5,
+    "horaEntrada": "15:00",
+    "horaSalida": "11:00",
+    "horasPreparacion": 3,
+    "horasPlazoConfirmacion": 24,
+    "horaLimiteNoShow": "22:00",
+    "porcentajeAnticipo": 30,
+    "maxMascotas": 1,
+    "cargoMascota": 40000,
+    "nochesDescuentoLargo": 7,
+    "porcentajeDescuentoLargo": 10
+  }
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Tarifa MITAD_DE_ANIO
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/tarifas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "codigoApartamento": "BH-401",
+    "temporada": "MITAD_DE_ANIO",
+    "valor": 110000
+  }
+}

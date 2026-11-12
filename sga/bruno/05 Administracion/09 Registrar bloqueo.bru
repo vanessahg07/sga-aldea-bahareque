@@ -1,0 +1,30 @@
+meta {
+  name: Registrar bloqueo
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/apartamentos/BH-401/bloqueos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "desde": "{{entrada}}",
+    "hasta": "{{salida}}",
+    "motivo": "Pintura de fachada"
+  }
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("hoy", dia(0));
+  bru.setVar("entrada", dia(45));
+  bru.setVar("salida", dia(48));
+}

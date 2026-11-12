@@ -1,0 +1,15 @@
+meta {
+  name: Versiones de la politica
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/api/politicas
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

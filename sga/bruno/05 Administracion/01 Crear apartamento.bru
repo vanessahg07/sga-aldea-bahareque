@@ -1,0 +1,29 @@
+meta {
+  name: Crear apartamento
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/apartamentos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "codigo": "BH-401",
+    "nombre": "Colibrí",
+    "descripcion": "Ático con vista a la cordillera",
+    "dormitorios": 1,
+    "capacidad": 2,
+    "caracteristicas": [
+      "vista-cordillera"
+    ],
+    "admiteMascotas": false
+  }
+}

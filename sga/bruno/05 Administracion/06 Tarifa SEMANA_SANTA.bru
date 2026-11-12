@@ -1,0 +1,23 @@
+meta {
+  name: Tarifa SEMANA_SANTA
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/tarifas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "codigoApartamento": "BH-401",
+    "temporada": "SEMANA_SANTA",
+    "valor": 110000
+  }
+}

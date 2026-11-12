@@ -1,0 +1,23 @@
+meta {
+  name: Tarifa BASE
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/tarifas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "codigoApartamento": "BH-401",
+    "temporada": "BASE",
+    "valor": 110000
+  }
+}

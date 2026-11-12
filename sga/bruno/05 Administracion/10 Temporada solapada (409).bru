@@ -1,0 +1,28 @@
+meta {
+  name: Temporada solapada (409)
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/temporadas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "nombre": "NAVIDAD",
+    "rangos": [
+      {
+        "inicio": "2026-12-20",
+        "fin": "2026-12-26"
+      }
+    ],
+    "estanciaMinimaNoches": 1
+  }
+}

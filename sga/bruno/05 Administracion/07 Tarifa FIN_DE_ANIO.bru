@@ -1,0 +1,23 @@
+meta {
+  name: Tarifa FIN_DE_ANIO
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/tarifas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  {
+    "codigoApartamento": "BH-401",
+    "temporada": "FIN_DE_ANIO",
+    "valor": 110000
+  }
+}
