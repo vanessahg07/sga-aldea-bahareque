@@ -1,0 +1,1269 @@
+openapi: 3.1.0
+info:
+  title: SGA Aldea Bahareque — API
+  version: 1.0.0-entrega1
+  summary: Sistema de Gestión de Alojamiento para Aldea Bahareque (Filandia, Quindío).
+  description: |
+    Diseño de la API derivado de los casos de uso documentados en `docs/casos-de-uso.md`
+    (Entrega 1, artefacto de diseño). Los nombres usan el lenguaje ubicuo del SGA.
+
+    **Convenciones**
+    - Cada transición del ciclo de vida de la reserva y del estado operativo del apartamento
+      es su propia operación (`/confirmacion`, `/cancelacion`, `/llegada`...). No hay un endpoint
+      genérico para cambiar estados.
+    - Las fechas van en formato ISO 8601 (`2026-11-10`) y los valores monetarios en pesos
+      colombianos (COP).
+    - Todo error de negocio responde con un `Error` que trae un `codigo` estable (los valores
+      de `CodigoError` del dominio) y un `mensaje` con significado para el negocio.
+    - 409 indica un choque con el estado actual (noches ya vendidas, transición no permitida);
+      422 indica que la solicitud viola una regla de negocio.
+    - Los listados se paginan de a 10 elementos.
+servers:
+  - url: http://localhost:9090
+    description: Entorno local
+tags:
+  - name: Disponibilidad
+    description: Búsqueda y cotización (CU-01, CU-02)
+  - name: Reservas
+    description: Creación y ciclo de vida de la reserva (CU-03, CU-04, CU-06, CU-07, CU-09 a CU-12)
+  - name: Folio
+    description: Cargos, pagos y saldo (CU-05, CU-08)
+  - name: Operación
+    description: Preparación y novedades de los apartamentos (CU-13, CU-14)
+  - name: Administración
+    description: Bloqueos (CU-15)
+  - name: Canal externo
+    description: Reservas recibidas de agencias externas (CU-16)
+
+paths:
+  /api/disponibilidad/busqueda:
+    post:
+      tags: [Disponibilidad]
+      operationId: buscarDisponibilidad
+      summary: Buscar apartamentos disponibles (CU-01)
+      description: |
+        Devuelve los apartamentos que se pueden vender para la estancia y el grupo indicados,
+        cada uno con su cotización. Aplica RN-01, RN-02, RN-04, RN-07, RN-20, RP-01 y RP-03.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusquedaDisponibilidad'
+      responses:
+        '200':
+          description: Página de apartamentos disponibles (puede venir vacía).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaApartamentosDisponibles'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/cotizaciones:
+    post:
+      tags: [Disponibilidad]
+      operationId: cotizarEstancia
+      summary: Cotizar una estancia (CU-02)
+      description: Calcula el valor noche por noche (RN-05, RN-06) con el descuento por estancia larga (RP-02) y el cargo por mascota (RP-03).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudCotizacion'
+      responses:
+        '200':
+          description: Cotización con su desglose.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cotizacion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/reservas/portal:
+    post:
+      tags: [Reservas]
+      operationId: crearReservaPortal
+      summary: Crear una reserva por el portal (CU-03)
+      description: |
+        El huésped autenticado crea una reserva por el canal PORTAL; queda como titular enlazado a
+        su cuenta. La reserva nace PENDIENTE con su valor y su política congelados (RN-22) y el
+        folio abierto con el cargo de alojamiento.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudReserva'
+      responses:
+        '201':
+          description: Reserva creada en estado PENDIENTE.
+          headers:
+            Location:
+              description: URL de la reserva creada.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/NochesNoDisponibles'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/reservas/directas:
+    post:
+      tags: [Reservas]
+      operationId: crearReservaDirecta
+      summary: Crear una reserva directa (CU-06)
+      description: La recepción crea una reserva por el canal DIRECTO para un titular que puede no tener cuenta. Mismas reglas que CU-03.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudReserva'
+      responses:
+        '201':
+          description: Reserva creada en estado PENDIENTE.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/NochesNoDisponibles'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/reservas/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    get:
+      tags: [Reservas]
+      operationId: consultarReserva
+      summary: Consultar una reserva
+      description: El huésped solo puede consultar sus propias reservas.
+      responses:
+        '200':
+          description: Reserva.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    put:
+      tags: [Reservas]
+      operationId: modificarReserva
+      summary: Modificar fechas, ocupantes o apartamento (CU-07)
+      description: |
+        Revalida las condiciones de creación y recalcula el valor con las tarifas vigentes; la
+        diferencia queda en el folio como cargo de AJUSTE (RN-14). La política no cambia.
+        Solo se modifican reservas PENDIENTE o CONFIRMADA.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudModificacion'
+      responses:
+        '200':
+          description: Reserva modificada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/ConflictoDeEstado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/reservas/{id}/confirmacion:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [Reservas]
+      operationId: confirmarReserva
+      summary: Confirmar una reserva (CU-09)
+      description: PENDIENTE → CONFIRMADA. Exige hora estimada de llegada (RN-09) y el anticipo del 30 % pagado.
+      responses:
+        '200':
+          description: Reserva CONFIRMADA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/ConflictoDeEstado'
+        '422':
+          description: Falta la hora estimada de llegada o el anticipo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                anticipo:
+                  value:
+                    codigo: ANTICIPO_INSUFICIENTE
+                    mensaje: No se ha pagado el anticipo requerido para confirmar la reserva
+                horaLlegada:
+                  value:
+                    codigo: HORA_LLEGADA_REQUERIDA
+                    mensaje: La reserva debe tener hora estimada de llegada antes de confirmarse
+
+  /api/reservas/{id}/cancelacion:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [Reservas]
+      operationId: cancelarReserva
+      summary: Cancelar una reserva (CU-04)
+      description: |
+        PENDIENTE o CONFIRMADA → CANCELADA. La retención se calcula con la política congelada en la
+        reserva (RN-13) y las noches se liberan de inmediato (RN-12). El huésped solo cancela las propias.
+      responses:
+        '200':
+          description: Reserva CANCELADA con la retención aplicada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoRetencion'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/ConflictoDeEstado'
+
+  /api/reservas/{id}/llegada:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [Reservas]
+      operationId: registrarLlegada
+      summary: Registrar la llegada (CU-10)
+      description: CONFIRMADA → EN_CURSO. No antes de la fecha de entrada (RN-10) y solo si el apartamento está PREPARADO (RN-11); el apartamento queda OCUPADO.
+      responses:
+        '200':
+          description: Reserva EN_CURSO.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          description: La reserva no está CONFIRMADA o el apartamento no está PREPARADO.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: APARTAMENTO_NO_PREPARADO
+                mensaje: El apartamento no está preparado para recibir al grupo
+        '422':
+          description: Se intenta registrar antes de la fecha de entrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: REGISTRO_ANTES_DE_ENTRADA
+                mensaje: No se puede registrar la llegada antes de la fecha de entrada
+
+  /api/reservas/{id}/salida:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [Reservas]
+      operationId: registrarSalida
+      summary: Registrar la salida (CU-11)
+      description: |
+        EN_CURSO → FINALIZADA. Cierra el folio; si el saldo no es cero exige la autorización del
+        administrador con autor y motivo (RN-17). El apartamento queda PENDIENTE_PREPARACION.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudSalida'
+      responses:
+        '200':
+          description: Reserva FINALIZADA y folio cerrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          description: El folio tiene saldo y no hay autorización, o la reserva no está EN_CURSO.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: FOLIO_CON_SALDO
+                mensaje: El folio tiene saldo pendiente y requiere autorización del administrador para cerrarse
+
+  /api/reservas/{id}/no-show:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [Reservas]
+      operationId: declararNoShow
+      summary: Declarar no-show (CU-12)
+      description: CONFIRMADA → NO_SHOW, desde la hora límite (22:00) del día de entrada. Retiene según la política congelada (RN-13) y libera las noches.
+      responses:
+        '200':
+          description: Reserva en NO_SHOW con la retención aplicada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoRetencion'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/ConflictoDeEstado'
+        '422':
+          description: Aún no se alcanza la hora límite.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: NO_SHOW_ANTICIPADO
+                mensaje: Aún no se ha alcanzado la hora límite para declarar no-show
+
+  /api/reservas/{id}/folio:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    get:
+      tags: [Folio]
+      operationId: consultarFolio
+      summary: Consultar el folio de una reserva (CU-05)
+      description: Cargos, pagos y saldo (cargos menos pagos, RN-15). El huésped solo consulta los de sus reservas.
+      responses:
+        '200':
+          description: Folio de la reserva.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  /api/reservas/{id}/folio/pagos:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [Folio]
+      operationId: registrarPago
+      summary: Registrar un pago (CU-08)
+      description: Todo pago tiene valor positivo, medio aceptado por el alojamiento y fecha (RN-15, L-18). Los pagos no se editan ni se eliminan (RN-16).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudPago'
+      responses:
+        '201':
+          description: Pago registrado; se devuelve el folio actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folio'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          description: El folio está cerrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: FOLIO_CERRADO
+                mensaje: El folio está cerrado y no admite movimientos
+        '422':
+          description: Medio de pago no aceptado o valor inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: MEDIO_PAGO_NO_ACEPTADO
+                mensaje: El alojamiento no acepta ese medio de pago
+
+  /api/apartamentos/{codigo}/preparacion/inicio:
+    parameters:
+      - $ref: '#/components/parameters/CodigoApartamento'
+    post:
+      tags: [Operación]
+      operationId: iniciarPreparacion
+      summary: Iniciar la preparación (CU-13)
+      description: PENDIENTE_PREPARACION → EN_PREPARACION. La realiza el personal de servicio.
+      responses:
+        '200':
+          description: Apartamento EN_PREPARACION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoApartamento'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/TransicionOperativaInvalida'
+
+  /api/apartamentos/{codigo}/preparacion/fin:
+    parameters:
+      - $ref: '#/components/parameters/CodigoApartamento'
+    post:
+      tags: [Operación]
+      operationId: terminarPreparacion
+      summary: Terminar la preparación (CU-13)
+      description: EN_PREPARACION → PREPARADO. Desde este momento el apartamento puede recibir un grupo (RN-11).
+      responses:
+        '200':
+          description: Apartamento PREPARADO.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoApartamento'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/TransicionOperativaInvalida'
+
+  /api/apartamentos/{codigo}/novedades:
+    parameters:
+      - $ref: '#/components/parameters/CodigoApartamento'
+    post:
+      tags: [Operación]
+      operationId: registrarNovedad
+      summary: Registrar una novedad (CU-14)
+      description: El personal de servicio reporta un daño, faltante o situación; el autor es el usuario autenticado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudNovedad'
+      responses:
+        '201':
+          description: Novedad registrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Novedad'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/apartamentos/{codigo}/bloqueos:
+    parameters:
+      - $ref: '#/components/parameters/CodigoApartamento'
+    post:
+      tags: [Administración]
+      operationId: registrarBloqueo
+      summary: Registrar un bloqueo (CU-15)
+      description: Impide vender el rango de noches `[desde, hasta)` (RN-07). No puede cruzarse con noches ya reservadas y exige motivo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudBloqueo'
+      responses:
+        '201':
+          description: Bloqueo registrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bloqueo'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          description: El rango se cruza con noches que ya tienen reservas activas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                codigo: BLOQUEO_SOBRE_RESERVAS
+                mensaje: No se puede bloquear noches que ya tienen reservas activas
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /api/canal/reservas:
+    post:
+      tags: [Canal externo]
+      operationId: recibirReservaExterna
+      summary: Recibir una reserva de un canal externo (CU-16)
+      description: |
+        Idempotente por canal + identificador externo (RN-19): un mensaje repetido devuelve la
+        reserva ya creada sin duplicarla. Una reserva en conflicto se rechaza, queda registrada
+        como conflicto de canal y nunca sobrescribe la reserva vigente (RN-18).
+      security:
+        - canalExterno: []
+          credencialCanal: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudReservaExterna'
+      responses:
+        '200':
+          description: Mensaje repetido; se devuelve la reserva creada la primera vez.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoReservaExterna'
+        '201':
+          description: Reserva externa aceptada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoReservaExterna'
+        '400':
+          $ref: '#/components/responses/SolicitudMalFormada'
+        '401':
+          description: El canal no existe o la credencial no es válida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflicto de canal; queda registrado y la reserva vigente no cambia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictoCanal'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+components:
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token del usuario autenticado (huésped, recepcionista, administrador o personal de servicio).
+    canalExterno:
+      type: apiKey
+      in: header
+      name: X-Canal
+      description: Código del canal externo registrado (por ejemplo, ViajaEje).
+    credencialCanal:
+      type: apiKey
+      in: header
+      name: X-Credencial-Canal
+      description: Credencial propia del canal.
+
+  parameters:
+    IdReserva:
+      name: id
+      in: path
+      required: true
+      description: Identificador de la reserva.
+      schema:
+        type: string
+        format: uuid
+    CodigoApartamento:
+      name: codigo
+      in: path
+      required: true
+      description: Código del apartamento (por ejemplo, BH-201).
+      schema:
+        type: string
+        pattern: '^BH-[0-9]{3}$'
+        examples: [BH-201]
+    Pagina:
+      name: pagina
+      in: query
+      required: false
+      description: Número de página, empezando en 0. Cada página trae 10 elementos.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  responses:
+    SolicitudMalFormada:
+      description: La solicitud no tiene el formato esperado (campos faltantes o con tipo inválido).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            codigo: SOLICITUD_INVALIDA
+            mensaje: La solicitud tiene campos inválidos
+            detalles: ['fechaEntrada: es obligatorio']
+    NoAutenticado:
+      description: Falta el token o no es válido.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Prohibido:
+      description: El usuario no tiene el rol requerido o la reserva no le pertenece.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoEncontrado:
+      description: El recurso no existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            reserva:
+              value:
+                codigo: RESERVA_NO_ENCONTRADA
+                mensaje: La reserva no existe
+            apartamento:
+              value:
+                codigo: APARTAMENTO_NO_ENCONTRADO
+                mensaje: El apartamento no existe
+    NochesNoDisponibles:
+      description: Las noches ya están vendidas, bloqueadas o no hay tiempo de preparación (RN-01, RN-07, RN-20).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            solapamiento:
+              value:
+                codigo: NOCHES_NO_DISPONIBLES
+                mensaje: El apartamento ya tiene una reserva activa en alguna de las noches solicitadas
+            bloqueo:
+              value:
+                codigo: APARTAMENTO_BLOQUEADO
+                mensaje: El apartamento tiene un bloqueo en alguna de las noches solicitadas
+            preparacion:
+              value:
+                codigo: TIEMPO_PREPARACION_INSUFICIENTE
+                mensaje: No hay tiempo de preparación suficiente entre la salida y la entrada del mismo día
+    ConflictoDeEstado:
+      description: La operación no es posible en el estado actual de la reserva (RN-08) o choca con otra reserva.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            transicion:
+              value:
+                codigo: TRANSICION_INVALIDA
+                mensaje: La reserva no puede pasar a ese estado desde su estado actual
+            noModificable:
+              value:
+                codigo: RESERVA_NO_MODIFICABLE
+                mensaje: La reserva solo puede modificarse en estado PENDIENTE o CONFIRMADA
+    TransicionOperativaInvalida:
+      description: El apartamento no está en el estado de origen de esta transición.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            codigo: TRANSICION_ESTADO_OPERATIVO_INVALIDA
+            mensaje: El cambio de estado operativo no está permitido
+    ReglaDeNegocio:
+      description: La solicitud viola una regla de negocio.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            capacidad:
+              value:
+                codigo: CAPACIDAD_EXCEDIDA
+                mensaje: El número de ocupantes excede la capacidad del apartamento
+            fechaPasada:
+              value:
+                codigo: FECHA_ENTRADA_PASADA
+                mensaje: La fecha de entrada no puede ser anterior a hoy
+            estanciaMinima:
+              value:
+                codigo: ESTANCIA_MINIMA_NO_CUMPLIDA
+                mensaje: La estancia no cumple el mínimo de noches exigido por la temporada
+            mascotas:
+              value:
+                codigo: MASCOTAS_NO_PERMITIDAS
+                mensaje: El apartamento no admite mascotas
+
+  schemas:
+    Error:
+      type: object
+      description: Error con significado de negocio.
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          description: Código estable del error (valores de `CodigoError`, o SOLICITUD_INVALIDA para errores de formato).
+          examples: [NOCHES_NO_DISPONIBLES]
+        mensaje:
+          type: string
+        detalles:
+          type: array
+          items:
+            type: string
+        fecha:
+          type: string
+          format: date-time
+
+    Dinero:
+      type: number
+      description: Valor en pesos colombianos (COP). Puede ser negativo en reversos y saldos a favor.
+      examples: [340000]
+
+    EstadoReserva:
+      type: string
+      enum: [PENDIENTE, CONFIRMADA, EN_CURSO, FINALIZADA, CANCELADA, NO_SHOW]
+    Canal:
+      type: string
+      enum: [PORTAL, DIRECTO, EXTERNO]
+    EstadoOperativo:
+      type: string
+      enum: [PREPARADO, OCUPADO, PENDIENTE_PREPARACION, EN_PREPARACION, FUERA_DE_SERVICIO]
+    TipoCargo:
+      type: string
+      enum: [ALOJAMIENTO, MASCOTA, SERVICIO_ADICIONAL, AJUSTE, PENALIDAD]
+    Gravedad:
+      type: string
+      enum: [BAJA, MEDIA, ALTA, CRITICA]
+
+    Ocupante:
+      type: object
+      required: [nombre, fechaNacimiento]
+      properties:
+        nombre:
+          type: string
+        fechaNacimiento:
+          type: string
+          format: date
+    Titular:
+      type: object
+      description: Responsable de la reserva y de su pago; siempre es ocupante y debe ser facturable.
+      required: [nombre, documento, fechaNacimiento]
+      properties:
+        nombre:
+          type: string
+        documento:
+          type: string
+        correo:
+          type: string
+          format: email
+        telefono:
+          type: string
+        fechaNacimiento:
+          type: string
+          format: date
+    Estancia:
+      type: object
+      description: Rango de noches `[fechaEntrada, fechaSalida)`.
+      required: [fechaEntrada, fechaSalida]
+      properties:
+        fechaEntrada:
+          type: string
+          format: date
+        fechaSalida:
+          type: string
+          format: date
+        noches:
+          type: integer
+          readOnly: true
+
+    BusquedaDisponibilidad:
+      type: object
+      required: [fechaEntrada, fechaSalida, ocupantes]
+      properties:
+        fechaEntrada:
+          type: string
+          format: date
+        fechaSalida:
+          type: string
+          format: date
+        ocupantes:
+          type: array
+          minItems: 1
+          description: Todo el grupo, incluido el titular.
+          items:
+            $ref: '#/components/schemas/Ocupante'
+        mascotas:
+          type: integer
+          minimum: 0
+          default: 0
+        capacidadMinima:
+          type: integer
+          minimum: 1
+        precioMaximo:
+          $ref: '#/components/schemas/Dinero'
+        caracteristicas:
+          type: array
+          items:
+            type: string
+    ApartamentoDisponible:
+      type: object
+      properties:
+        codigo:
+          type: string
+        nombre:
+          type: string
+        dormitorios:
+          type: integer
+        capacidad:
+          type: integer
+        caracteristicas:
+          type: array
+          items:
+            type: string
+        admiteMascotas:
+          type: boolean
+        imagenPrincipal:
+          type: string
+          format: uri
+        cotizacion:
+          $ref: '#/components/schemas/Cotizacion'
+    PaginaApartamentosDisponibles:
+      type: object
+      properties:
+        contenido:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ApartamentoDisponible'
+        numero:
+          type: integer
+        totalElementos:
+          type: integer
+        totalPaginas:
+          type: integer
+
+    SolicitudCotizacion:
+      type: object
+      required: [codigoApartamento, fechaEntrada, fechaSalida, ocupantes]
+      properties:
+        codigoApartamento:
+          type: string
+        fechaEntrada:
+          type: string
+          format: date
+        fechaSalida:
+          type: string
+          format: date
+        ocupantes:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Ocupante'
+        mascotas:
+          type: integer
+          minimum: 0
+          default: 0
+    DetalleNoche:
+      type: object
+      properties:
+        fecha:
+          type: string
+          format: date
+        temporada:
+          type: string
+          examples: [FIN_DE_ANIO]
+        tarifa:
+          $ref: '#/components/schemas/Dinero'
+        ocupantesFacturables:
+          type: integer
+        subtotal:
+          $ref: '#/components/schemas/Dinero'
+    Cotizacion:
+      type: object
+      description: Valor de la estancia con su desglose noche por noche.
+      properties:
+        detalle:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetalleNoche'
+        subtotalNoches:
+          $ref: '#/components/schemas/Dinero'
+        descuento:
+          $ref: '#/components/schemas/Dinero'
+        valorAlojamiento:
+          $ref: '#/components/schemas/Dinero'
+        valorMascotas:
+          $ref: '#/components/schemas/Dinero'
+        valorTotal:
+          $ref: '#/components/schemas/Dinero'
+
+    SolicitudReserva:
+      type: object
+      required: [codigoApartamento, fechaEntrada, fechaSalida, titular]
+      properties:
+        codigoApartamento:
+          type: string
+          examples: [BH-201]
+        fechaEntrada:
+          type: string
+          format: date
+        fechaSalida:
+          type: string
+          format: date
+        horaEstimadaLlegada:
+          type: string
+          pattern: '^[0-2][0-9]:[0-5][0-9]$'
+          description: Obligatoria antes de confirmar (RN-09).
+          examples: ['16:00']
+        titular:
+          $ref: '#/components/schemas/Titular'
+        acompanantes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ocupante'
+        mascotas:
+          type: integer
+          minimum: 0
+          default: 0
+    SolicitudModificacion:
+      type: object
+      required: [codigoApartamento, fechaEntrada, fechaSalida]
+      properties:
+        codigoApartamento:
+          type: string
+        fechaEntrada:
+          type: string
+          format: date
+        fechaSalida:
+          type: string
+          format: date
+        acompanantes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ocupante'
+        mascotas:
+          type: integer
+          minimum: 0
+    Reserva:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        codigoApartamento:
+          type: string
+        estado:
+          $ref: '#/components/schemas/EstadoReserva'
+        canal:
+          $ref: '#/components/schemas/Canal'
+        referenciaExterna:
+          type: [string, 'null']
+          description: Identificador de la reserva en el canal externo, si aplica.
+        titular:
+          $ref: '#/components/schemas/Titular'
+        acompanantes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ocupante'
+        estancia:
+          $ref: '#/components/schemas/Estancia'
+        horaEstimadaLlegada:
+          type: [string, 'null']
+        mascotas:
+          type: integer
+        creadaEn:
+          type: string
+          format: date-time
+        cotizacion:
+          $ref: '#/components/schemas/Cotizacion'
+        versionPolitica:
+          type: integer
+          description: Versión de la política de cancelación congelada en la reserva (RN-13, RN-22).
+        saldo:
+          $ref: '#/components/schemas/Dinero'
+    ResultadoRetencion:
+      type: object
+      description: Reserva terminada y la retención aplicada según la política congelada.
+      properties:
+        reserva:
+          $ref: '#/components/schemas/Reserva'
+        retencion:
+          $ref: '#/components/schemas/Dinero'
+    SolicitudSalida:
+      type: object
+      description: Solo se envía si el folio tiene saldo y el administrador autoriza cerrarlo.
+      properties:
+        autorizacion:
+          type: object
+          required: [autor, motivo]
+          properties:
+            autor:
+              type: string
+            motivo:
+              type: string
+
+    Cargo:
+      type: object
+      properties:
+        id:
+          type: string
+        tipo:
+          $ref: '#/components/schemas/TipoCargo'
+        valor:
+          $ref: '#/components/schemas/Dinero'
+        descripcion:
+          type: string
+        fecha:
+          type: string
+          format: date-time
+        idCargoRevertido:
+          type: [string, 'null']
+          description: Si es un reverso, el cargo que corrige (RN-16).
+    Pago:
+      type: object
+      properties:
+        id:
+          type: string
+        valor:
+          $ref: '#/components/schemas/Dinero'
+        medio:
+          type: string
+          examples: [TRANSFERENCIA]
+        fecha:
+          type: string
+          format: date-time
+        idPagoRevertido:
+          type: [string, 'null']
+    Folio:
+      type: object
+      properties:
+        id:
+          type: string
+        cargos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cargo'
+        pagos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pago'
+        saldo:
+          $ref: '#/components/schemas/Dinero'
+        cerrado:
+          type: boolean
+    SolicitudPago:
+      type: object
+      required: [valor, medio]
+      properties:
+        valor:
+          type: number
+          exclusiveMinimum: 0
+        medio:
+          type: string
+          description: Uno de los medios aceptados por el alojamiento (EFECTIVO, TRANSFERENCIA, TARJETA).
+
+    EstadoApartamento:
+      type: object
+      properties:
+        codigo:
+          type: string
+        estadoOperativo:
+          $ref: '#/components/schemas/EstadoOperativo'
+    SolicitudNovedad:
+      type: object
+      required: [descripcion, gravedad]
+      properties:
+        descripcion:
+          type: string
+          minLength: 1
+        gravedad:
+          $ref: '#/components/schemas/Gravedad'
+    Novedad:
+      type: object
+      properties:
+        id:
+          type: string
+        codigoApartamento:
+          type: string
+        fecha:
+          type: string
+          format: date-time
+        autor:
+          type: string
+        descripcion:
+          type: string
+        gravedad:
+          $ref: '#/components/schemas/Gravedad'
+    SolicitudBloqueo:
+      type: object
+      required: [desde, hasta, motivo]
+      properties:
+        desde:
+          type: string
+          format: date
+        hasta:
+          type: string
+          format: date
+          description: Primera noche que ya no queda bloqueada (rango `[desde, hasta)`).
+        motivo:
+          type: string
+          minLength: 1
+    Bloqueo:
+      type: object
+      properties:
+        id:
+          type: string
+        codigoApartamento:
+          type: string
+        desde:
+          type: string
+          format: date
+        hasta:
+          type: string
+          format: date
+        motivo:
+          type: string
+
+    SolicitudReservaExterna:
+      type: object
+      required: [idExterno, codigoApartamento, fechaEntrada, fechaSalida, titular]
+      properties:
+        idExterno:
+          type: string
+          description: Identificador de la reserva en el canal; con el código del canal forma la referencia externa única (RN-19).
+          examples: [VE-1001]
+        codigoApartamento:
+          type: string
+        fechaEntrada:
+          type: string
+          format: date
+        fechaSalida:
+          type: string
+          format: date
+        horaEstimadaLlegada:
+          type: string
+        titular:
+          $ref: '#/components/schemas/Titular'
+        acompanantes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ocupante'
+    ResultadoReservaExterna:
+      type: object
+      properties:
+        resultado:
+          type: string
+          enum: [ACEPTADA, DUPLICADA]
+        reserva:
+          $ref: '#/components/schemas/Reserva'
+    ConflictoCanal:
+      type: object
+      description: Reserva externa rechazada por colisionar con una reserva vigente (RN-18).
+      properties:
+        id:
+          type: string
+        canal:
+          type: string
+        idExterno:
+          type: string
+        codigoApartamento:
+          type: string
+        estancia:
+          $ref: '#/components/schemas/Estancia'
+        motivo:
+          type: string
+          examples: [NOCHES_NO_DISPONIBLES]
+        registradoEn:
+          type: string
+          format: date-time
+
+security:
+  - jwt: []

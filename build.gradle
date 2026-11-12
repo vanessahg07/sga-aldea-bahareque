@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'co.edu.uniquindio'
+version = '0.0.1-SNAPSHOT'
+description = 'SGA - Sistema de Gestión de Alojamiento'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // Servidor web y API REST. En Spring Boot 4 este starter se llama
+    // 'webmvc'; en versiones anteriores se llamaba 'web'.
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+    // Acceso a la base de datos mediante JPA e Hibernate.
+    // Base de los adaptadores de persistencia del SGA.
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Validación de los datos que entran al sistema (formato de la petición).
+    // Las reglas del negocio NO viven aquí: viven en el dominio.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Consola web de H2, disponible en /h2-console.
+    // En Spring Boot 4 debe declararse de forma explícita.
+    implementation 'org.springframework.boot:spring-boot-h2console'
+
+    // Generación automática de getters, setters y constructores.
+    // Se necesita en dos configuraciones: para compilar y para procesar anotaciones.
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Motor de la base de datos H2. Solo se requiere al ejecutar,
+    // no al compilar: por eso es 'runtimeOnly'.
+    runtimeOnly 'com.h2database:h2'
+
+    // Soporte de pruebas. En Spring Boot 4 cada starter tiene su propio
+    // starter de pruebas, y debe declararse uno por cada starter usado arriba.
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+
+    // Lanzador de JUnit necesario para ejecutar las pruebas desde Gradle.
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
