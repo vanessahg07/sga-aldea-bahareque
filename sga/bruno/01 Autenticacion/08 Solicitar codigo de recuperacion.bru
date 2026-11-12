@@ -1,0 +1,21 @@
+meta {
+  name: Solicitar codigo de recuperacion
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/auth/recuperacion
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "correo": "laura.gomez@correo.com"
+  }
+}
+
+docs {
+  El código se registra en el log del servidor (notificador local).
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Perfil del usuario autenticado
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/perfil
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenLaura}}
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Registro de huesped
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/auth/registro
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "nombre": "Mariana Salazar",
+    "correo": "mariana.salazar@correo.com",
+    "contrasena": "Mariana2026",
+    "telefono": "3175551234",
+    "documento": "1094777888",
+    "fechaNacimiento": "1996-03-21"
+  }
+}

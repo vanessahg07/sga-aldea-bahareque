@@ -1,0 +1,22 @@
+meta {
+  name: Login administrador
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "correo": "admin@aldeabahareque.co",
+    "contrasena": "{{contrasenaDemo}}"
+  }
+}
+
+script:post-response {
+  bru.setVar("tokenAdmin", res.body.token);
+}
