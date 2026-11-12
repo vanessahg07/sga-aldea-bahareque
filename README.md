@@ -29,7 +29,8 @@ Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sist
 
 | Nombre | Usuario GitHub |
 |---|---|
-| Vanessa Henao Gomez |vanessahg07 |
+| _Vanessa Henao Gomez_ |vanessahg07 |
+| _Miguel Angel Marulanda Cruz_ |miguelxmaru |
 
 ## Estado actual
 
