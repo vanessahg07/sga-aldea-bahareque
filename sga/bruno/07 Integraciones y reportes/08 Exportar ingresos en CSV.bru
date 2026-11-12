@@ -1,0 +1,15 @@
+meta {
+  name: Exportar ingresos en CSV
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/reportes/ingresos/csv?desde={{desde}}&hasta={{hasta}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

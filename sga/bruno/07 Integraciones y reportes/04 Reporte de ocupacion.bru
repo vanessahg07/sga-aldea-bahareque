@@ -1,0 +1,21 @@
+meta {
+  name: Reporte de ocupacion
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/reportes/ocupacion?desde={{desde}}&hasta={{hasta}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("desde", dia(-30));
+  bru.setVar("hasta", dia(30));
+}

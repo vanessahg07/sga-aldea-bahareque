@@ -1,0 +1,15 @@
+meta {
+  name: Conflictos pendientes (admin)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/canales/conflictos?pendientes=true
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

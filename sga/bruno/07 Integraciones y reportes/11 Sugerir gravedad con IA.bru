@@ -1,0 +1,21 @@
+meta {
+  name: Sugerir gravedad con IA
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/novedades/sugerencia-gravedad
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenServicio}}
+}
+
+body:json {
+  {
+    "descripcion": "La ducha del baño principal tiene una fuga y no calienta"
+  }
+}

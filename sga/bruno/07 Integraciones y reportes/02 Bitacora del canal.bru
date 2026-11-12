@@ -1,0 +1,15 @@
+meta {
+  name: Bitacora del canal
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/canales/bitacora?canal={{codigoCanal}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

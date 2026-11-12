@@ -1,0 +1,15 @@
+meta {
+  name: Reservas por canal
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/reportes/canales?desde={{desde}}&hasta={{hasta}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

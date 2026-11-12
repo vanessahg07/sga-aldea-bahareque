@@ -1,0 +1,15 @@
+meta {
+  name: Indicadores propios
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/reportes/indicadores?desde={{desde}}&hasta={{hasta}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

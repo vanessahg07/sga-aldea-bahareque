@@ -1,0 +1,15 @@
+meta {
+  name: Enviar recordatorios de hoy
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/recordatorios/envios
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

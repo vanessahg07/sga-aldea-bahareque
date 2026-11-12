@@ -1,0 +1,15 @@
+meta {
+  name: Reporte de ingresos
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/reportes/ingresos?desde={{desde}}&hasta={{hasta}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}

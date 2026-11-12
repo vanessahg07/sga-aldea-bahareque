@@ -1,0 +1,15 @@
+meta {
+  name: Canales registrados
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/canales
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
