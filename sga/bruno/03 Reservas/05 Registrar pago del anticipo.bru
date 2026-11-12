@@ -1,0 +1,22 @@
+meta {
+  name: Registrar pago del anticipo
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/{{idReserva}}/folio/pagos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}
+
+body:json {
+  {
+    "valor": {{anticipo}},
+    "medio": "TRANSFERENCIA"
+  }
+}

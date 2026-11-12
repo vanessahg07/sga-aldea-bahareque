@@ -1,0 +1,32 @@
+meta {
+  name: Reserva directa sin cuenta
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/directas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}
+
+body:json {
+  {
+    "titular": {"nombre": "Pedro Pérez", "documento": "71555444", "correo": "pedro@correo.com", "telefono": "3001112233", "fechaNacimiento": "1980-01-01"},
+    "codigoApartamento": "BH-102",
+    "entrada": "{{entrada}}",
+    "salida": "{{salida}}",
+    "horaEstimadaLlegada": "18:00"
+  }
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("hoy", dia(0));
+  bru.setVar("entrada", dia(45));
+  bru.setVar("salida", dia(48));
+}

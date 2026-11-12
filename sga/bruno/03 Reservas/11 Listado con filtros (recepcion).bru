@@ -1,0 +1,15 @@
+meta {
+  name: Listado con filtros (recepcion)
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/reservas?estado=CONFIRMADA&pagina=0
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}

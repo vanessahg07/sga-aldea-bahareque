@@ -1,0 +1,38 @@
+meta {
+  name: Crear reserva por portal (Laura)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/portal
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenLaura}}
+}
+
+body:json {
+  {
+    "codigoApartamento": "BH-201",
+    "entrada": "{{entrada}}",
+    "salida": "{{salida}}",
+    "acompanantes": [{"nombre": "Felipe Gómez", "fechaNacimiento": "1989-08-04"}],
+    "horaEstimadaLlegada": "16:00",
+    "mascotas": 0
+  }
+}
+
+script:pre-request {
+  const dia = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
+  bru.setVar("hoy", dia(0));
+  bru.setVar("entrada", dia(45));
+  bru.setVar("salida", dia(48));
+}
+
+script:post-response {
+  bru.setVar("idReserva", res.body.id);
+  bru.setVar("anticipo", Math.round(res.body.cotizacion.valorTotal * 0.3));
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Confirmar sin anticipo (422)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/reservas/{{idReserva}}/confirmacion
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenRecepcion}}
+}
