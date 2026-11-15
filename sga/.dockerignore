@@ -1,8 +1,10 @@
+# Solo el backend entra a la imagen: el frontend se despliega en Vercel.
 .gradle
 build
 datos
-frontend/node_modules
-frontend/dist
+frontend
+bruno
+docs
 .idea
 .vscode
 *.iml

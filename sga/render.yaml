@@ -1,23 +1,58 @@
-# Blueprint de Render (plan gratuito): crea el servicio web a partir del Dockerfile.
-# Los secretos se cargan en el panel de Render; nunca se escriben aquí.
+# ============================================================================
+# Blueprint de Render: base de datos PostgreSQL y backend del SGA (plan gratuito).
+# Render crea la base y le pasa al servicio sus datos de conexión. Los secretos se
+# generan en Render o se escriben en su panel; nunca se versionan aquí.
+# El frontend se despliega en Vercel con VITE_API_URL apuntando a este servicio.
+# ============================================================================
+databases:
+  - name: sga-bd
+    plan: free
+    databaseName: sga
+    user: sga
+
 services:
   - type: web
-    name: sga-aldea-bahareque
+    name: sga-api
     runtime: docker
     plan: free
     healthCheckPath: /api/alojamiento
     envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: postgres
+      - key: SGA_BD_HOST
+        fromDatabase:
+          name: sga-bd
+          property: host
+      - key: SGA_BD_PUERTO
+        fromDatabase:
+          name: sga-bd
+          property: port
+      - key: SGA_BD_NOMBRE
+        fromDatabase:
+          name: sga-bd
+          property: database
+      - key: SGA_BD_USUARIO
+        fromDatabase:
+          name: sga-bd
+          property: user
+      - key: SGA_BD_CLAVE
+        fromDatabase:
+          name: sga-bd
+          property: password
       - key: SGA_JWT_SECRETO
         generateValue: true
+      # Dominio del frontend en Vercel, por ejemplo https://sga-aldea-bahareque.vercel.app
+      - key: SGA_CORS_ORIGENES
+        sync: false
       - key: SGA_CONTRASENA_DEMO
         sync: false
       - key: SGA_CREDENCIAL_CANAL_DEMO
         sync: false
-      - key: SGA_IA_HABILITADA
-        value: "true"
       - key: SGA_IA_PROVEEDOR
         value: simulado
       - key: SGA_NOTIFICACIONES
         value: memoria
+      # El disco del plan gratuito no es persistente: para conservar las imágenes subidas,
+      # cambiar a cloudinary y cargar SGA_CLOUDINARY_NUBE, SGA_CLOUDINARY_CLAVE y SGA_CLOUDINARY_SECRETO.
       - key: SGA_IMAGENES
         value: local
