@@ -2,7 +2,7 @@
 # Blueprint de Render: base de datos PostgreSQL y backend del SGA (plan gratuito).
 # Render crea la base y le pasa al servicio sus datos de conexión. Los secretos se
 # generan en Render o se escriben en su panel; nunca se versionan aquí.
-# El frontend se despliega en Vercel con VITE_API_URL apuntando a este servicio.
+# El frontend se despliega en Vercel (directorio raíz sga/frontend) con VITE_API_URL apuntando a este servicio.
 # ============================================================================
 databases:
   - name: sga-bd
@@ -15,6 +15,9 @@ services:
     name: sga-api
     runtime: docker
     plan: free
+    # El proyecto vive en la carpeta sga/ del repositorio.
+    dockerContext: ./sga
+    dockerfilePath: ./sga/Dockerfile
     healthCheckPath: /api/alojamiento
     envVars:
       - key: SPRING_PROFILES_ACTIVE
