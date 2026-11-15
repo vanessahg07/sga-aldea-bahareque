@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/** Tabla de bloqueos de un apartamento por rango de fechas. Un bloqueo levantado deja de estar vigente, no se borra. */
 @Entity
 @Table(name = "bloqueo")
 @Getter

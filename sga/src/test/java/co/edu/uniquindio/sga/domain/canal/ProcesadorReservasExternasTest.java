@@ -13,6 +13,7 @@ import java.util.Optional;
 import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas del procesamiento de reservas externas: idempotencia (RN-19) y conflictos (RN-18). */
 class ProcesadorReservasExternasTest {
 
     private final ProcesadorReservasExternas procesador = new ProcesadorReservasExternas(new GestorReservas());

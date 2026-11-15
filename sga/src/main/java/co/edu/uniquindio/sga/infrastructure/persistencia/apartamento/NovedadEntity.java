@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/** Tabla de novedades registradas sobre un apartamento, con su autor y gravedad. */
 @Entity
 @Table(name = "novedad")
 @Getter

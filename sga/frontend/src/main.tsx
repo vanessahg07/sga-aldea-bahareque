@@ -1,3 +1,4 @@
+/** Punto de entrada del frontend: monta la aplicación con el tema, la sesión, los avisos y la caché de consultas. */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CssBaseline, ThemeProvider } from '@mui/material'

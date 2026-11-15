@@ -1,3 +1,4 @@
+/** Tablero de recepción: llegadas y salidas previstas del día. */
 import { useState } from 'react'
 import { Link as RouterLink, useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'

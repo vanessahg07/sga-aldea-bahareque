@@ -18,6 +18,7 @@ import java.util.List;
 import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de los reportes de ocupación, ingresos y reservas por canal. */
 class CalculadoraReportesTest {
 
     private final CalculadoraReportes calculadora = new CalculadoraReportes();

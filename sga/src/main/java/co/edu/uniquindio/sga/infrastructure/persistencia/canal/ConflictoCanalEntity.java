@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/** Tabla de reservas externas rechazadas por conflicto, pendientes de revisión del administrador. */
 @Entity
 @Table(name = "conflicto_canal", indexes = @Index(columnList = "registradoEn"))
 @Getter

@@ -1,3 +1,4 @@
+/** Reserva por el canal directo a nombre de un titular que puede no tener cuenta. */
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useMutation, useQuery } from '@tanstack/react-query'

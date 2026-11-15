@@ -18,6 +18,7 @@ import static co.edu.uniquindio.sga.domain.apartamento.EstadoOperativo.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+/** Pruebas del agregado Apartamento: capacidad, activación, imágenes, eliminación y estado operativo. */
 class ApartamentoTest {
 
     private static final RangoFechas NOCHES_RESERVADAS =

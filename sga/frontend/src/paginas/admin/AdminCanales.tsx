@@ -1,3 +1,4 @@
+/** Canales de venta externos: registro, credenciales, bitácora y revisión de conflictos. */
 import { useState } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'

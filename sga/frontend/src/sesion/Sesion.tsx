@@ -1,3 +1,4 @@
+/** Sesión del usuario: guarda el token, lo comparte con el cliente HTTP y cierra la sesión cuando vence. */
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { configurarSesion } from '../api/cliente'

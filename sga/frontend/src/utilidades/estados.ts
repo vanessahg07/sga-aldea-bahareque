@@ -1,3 +1,4 @@
+/** Nombres y colores para mostrar estados de reserva, estados operativos, gravedades, roles y canales. */
 import { colores } from '../tema/tema'
 import type { Canal, EstadoOperativo, EstadoReserva, Gravedad, Rol, TipoCanal, TipoCargo, TipoEventoCanal } from '../api/tipos'
 

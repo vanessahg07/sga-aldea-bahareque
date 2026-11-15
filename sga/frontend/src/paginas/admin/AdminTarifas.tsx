@@ -1,3 +1,4 @@
+/** Temporadas, tarifas por apartamento con su histórico y versiones de la política de cancelación. */
 import { useState } from 'react'
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import {

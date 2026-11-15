@@ -1,3 +1,4 @@
+/** Preparación de apartamentos para el personal de servicio y registro de novedades. */
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {

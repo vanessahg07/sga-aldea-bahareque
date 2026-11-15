@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/** Tabla de usuarios: credenciales cifradas, rol y eliminación lógica. */
 @Entity
 @Table(name = "usuario")
 @Getter

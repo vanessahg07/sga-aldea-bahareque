@@ -1,3 +1,4 @@
+/** Detalle de una reserva: estado, estancia, cotización congelada, folio y acciones según el rol. */
 import { useState } from 'react'
 import { Link as RouterLink, useParams } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'

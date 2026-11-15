@@ -1,3 +1,4 @@
+/** Listado de reservas con filtros por fechas, estado, apartamento, canal y titular. */
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import {

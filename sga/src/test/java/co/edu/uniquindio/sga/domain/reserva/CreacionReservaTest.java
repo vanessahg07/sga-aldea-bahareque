@@ -21,6 +21,7 @@ import java.util.List;
 import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de la creación de reservas con las seis validaciones en orden (RN-01 a RN-07, RN-20, RP-01, RP-03). */
 class CreacionReservaTest {
 
     private final GestorReservas gestor = new GestorReservas();

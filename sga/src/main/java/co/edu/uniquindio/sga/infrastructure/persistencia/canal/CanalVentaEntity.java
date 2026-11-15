@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Tabla de canales de venta externos con el hash de su credencial de acceso. */
 @Entity
 @Table(name = "canal_venta")
 @Getter

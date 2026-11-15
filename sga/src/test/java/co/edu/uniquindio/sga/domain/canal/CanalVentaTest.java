@@ -10,6 +10,7 @@ import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+/** Pruebas del canal de venta: credencial, activación y validaciones. */
 class CanalVentaTest {
 
     private static final CifradorContrasenas CIFRADOR = new CifradorContrasenas() {

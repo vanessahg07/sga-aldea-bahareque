@@ -19,6 +19,7 @@ import static co.edu.uniquindio.sga.domain.reserva.EstadoReserva.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+/** Pruebas de las transiciones permitidas del ciclo de vida de la reserva (RN-08). */
 @DisplayName("RN-08: la reserva solo transita entre los estados permitidos")
 class EstadoReservaTest {
 

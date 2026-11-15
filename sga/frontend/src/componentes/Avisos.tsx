@@ -1,3 +1,4 @@
+/** Avisos emergentes (éxito y error) disponibles en toda la aplicación. */
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
 import { Alert, Snackbar } from '@mui/material'
 import { mensajeDe } from '../api/cliente'

@@ -1,3 +1,4 @@
+/** Inicio de sesión, registro de huéspedes y recuperación de contraseña. */
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router'
 import { useMutation } from '@tanstack/react-query'

@@ -1,3 +1,4 @@
+/** Formulario de datos de un apartamento, compartido por la creación y la edición. */
 import { useState } from 'react'
 import { Chip, FormControlLabel, Grid, Stack, Switch, TextField } from '@mui/material'
 import type { DatosApartamento } from '../../api/servicios'

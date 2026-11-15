@@ -1,3 +1,4 @@
+/** Administración del alojamiento: datos generales, normas, servicios adicionales, medios de pago y parámetros. */
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {

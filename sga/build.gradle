@@ -43,7 +43,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
 
-    // Notificaciones por correo (adaptador SMTP del puerto Notificador, Corte 4).
+    // Notificaciones por correo (adaptador SMTP del puerto Notificador).
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // Consola web de H2, disponible en /h2-console.

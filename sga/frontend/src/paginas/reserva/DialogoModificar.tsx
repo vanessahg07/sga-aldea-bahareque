@@ -1,3 +1,4 @@
+/** Diálogo para modificar las fechas, el grupo o el apartamento de una reserva no iniciada. */
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {

@@ -1,3 +1,4 @@
+/** Página para las rutas que no existen. */
 import { Link as RouterLink } from 'react-router'
 import { Button, Container, Typography } from '@mui/material'
 

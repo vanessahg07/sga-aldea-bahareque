@@ -1,3 +1,4 @@
+/** Funciones que consumen la API REST, agrupadas como los controladores del backend. */
 import { api, consulta } from './cliente'
 import type {
   ActualizacionApartamento, Alojamiento, Apartamento, Bloqueo, Canal, CanalVenta, ConflictoCanal, CredencialCanal,

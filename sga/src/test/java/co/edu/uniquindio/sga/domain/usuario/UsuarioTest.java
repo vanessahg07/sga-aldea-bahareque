@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import static co.edu.uniquindio.sga.domain.Escenario.violaRegla;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas del usuario: correo, contraseña segura, autenticación y eliminación lógica. */
 class UsuarioTest {
 
     /** Cifrador de prueba: reversible y predecible, suficiente para verificar las reglas. */

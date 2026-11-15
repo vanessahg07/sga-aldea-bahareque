@@ -1,3 +1,4 @@
+/** Reportes de ocupación, ingresos y reservas por canal, con exportación a CSV. */
 import { useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {

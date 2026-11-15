@@ -1,3 +1,4 @@
+/** Recordatorios de llegada y salida enviados y envío manual del día. */
 import { useState } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'

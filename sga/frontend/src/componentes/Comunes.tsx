@@ -1,3 +1,4 @@
+/** Componentes reutilizables: carga, errores, chips de estado, paginador, campos de fecha y hora, confirmaciones. */
 import type { ReactNode } from 'react'
 import {
   Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Pagination,

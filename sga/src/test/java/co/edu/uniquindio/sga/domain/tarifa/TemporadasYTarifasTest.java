@@ -14,6 +14,7 @@ import java.util.List;
 import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de temporadas sin solapes, temporada base obligatoria y tarifas con histórico. */
 class TemporadasYTarifasTest {
 
     @Test

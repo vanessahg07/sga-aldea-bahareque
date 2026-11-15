@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class AlojamientoAdaptador implements AlojamientoRepositorio {
 
-    /** Días del recordatorio de llegada de la Ficha (A.4) para bases creadas antes del Corte 4. */
+    /** Días del recordatorio de llegada de la Ficha (A.4) cuando la base no tiene guardado ese valor. */
     private static final int DIAS_RECORDATORIO_POR_DEFECTO = 2;
     /** Código de un alojamiento guardado antes de que el código existiera. */
     private static final String CODIGO_POR_DEFECTO = "ALDEA-BAHAREQUE";

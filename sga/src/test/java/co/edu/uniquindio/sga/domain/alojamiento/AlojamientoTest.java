@@ -15,6 +15,7 @@ import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+/** Pruebas del alojamiento: medios de pago aceptados y servicios adicionales. */
 class AlojamientoTest {
 
     private Alojamiento alojamiento() {

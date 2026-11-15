@@ -1,3 +1,4 @@
+/** Diálogos del folio: pagos, servicios adicionales, ajustes, reversos y cierre. */
 import { useState, type ReactNode } from 'react'
 import {
   Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Stack, TextField,

@@ -11,6 +11,7 @@ import java.util.List;
 import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de la cotización noche por noche (RN-05, RN-06, RP-02, RP-03). */
 class CotizadorEstanciaTest {
 
     private final CotizadorEstancia cotizador = new CotizadorEstancia();

@@ -17,6 +17,7 @@ import static co.edu.uniquindio.sga.domain.Escenario.capturar;
 import static co.edu.uniquindio.sga.domain.Escenario.politicaV1;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de la política de cancelación: tramos, retención y versionado. */
 class PoliticaCancelacionTest {
 
     private static final LocalDate ENTRADA = LocalDate.of(2026, 11, 20);

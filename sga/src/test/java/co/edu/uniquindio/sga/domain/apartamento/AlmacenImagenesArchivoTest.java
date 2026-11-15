@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import static co.edu.uniquindio.sga.domain.Escenario.violaRegla;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de la validación de archivos de imagen antes de almacenarlos. */
 class AlmacenImagenesArchivoTest {
 
     @Test

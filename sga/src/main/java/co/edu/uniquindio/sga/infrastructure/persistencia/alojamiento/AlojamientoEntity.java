@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Tabla del alojamiento: datos generales, normas, servicios adicionales, medios de pago y parámetros de la Ficha. */
 @Entity
 @Table(name = "alojamiento")
 @Getter
@@ -68,7 +69,7 @@ public class AlojamientoEntity {
     private int nochesDescuentoLargo;
     @Column(precision = 5, scale = 2)
     private BigDecimal porcentajeDescuentoLargo;
-    /** Nulo en bases creadas antes del Corte 4: se toma el valor por defecto de la Ficha. */
+    /** Puede ser nulo en bases existentes que aún no tenían esta columna: se usa el valor de la Ficha. */
     private Integer diasRecordatorioLlegada;
 
     @Embeddable

@@ -13,6 +13,7 @@ import static co.edu.uniquindio.sga.domain.Escenario.capturar;
 import static co.edu.uniquindio.sga.domain.Escenario.parametrosConPreparacion;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de los parámetros de la Ficha: validaciones y tiempo de preparación (RN-20). */
 class ParametrosAlojamientoTest {
 
     @Test

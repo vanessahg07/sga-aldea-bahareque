@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/** Tabla de la bitácora de mensajes recibidos de los canales externos. */
 @Entity
 @Table(name = "evento_canal", indexes = {@Index(columnList = "fecha"), @Index(columnList = "codigoCanal, fecha")})
 @Getter

@@ -1,3 +1,4 @@
+/** Registro e historial de novedades de un apartamento, con la sugerencia de gravedad. */
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {

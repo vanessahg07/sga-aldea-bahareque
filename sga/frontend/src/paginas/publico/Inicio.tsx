@@ -1,3 +1,4 @@
+/** Página de inicio: búsqueda de apartamentos disponibles por fechas y grupo, con filtros y paginación. */
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'

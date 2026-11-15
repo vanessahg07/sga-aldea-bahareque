@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Tabla de apartamentos con sus imágenes y características. La eliminación es lógica. */
 @Entity
 @Table(name = "apartamento")
 @Getter

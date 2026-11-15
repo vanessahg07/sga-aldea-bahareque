@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/** Tabla de códigos de recuperación de contraseña: se guardan cifrados, vencen y son de un solo uso. */
 @Entity
 @Table(name = "codigo_recuperacion", indexes = @Index(columnList = "correo"))
 @Getter

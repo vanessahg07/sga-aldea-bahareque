@@ -1,3 +1,4 @@
+/** Gestión de usuarios: cuentas internas, asignación de roles y eliminación lógica. */
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {

@@ -16,6 +16,7 @@ import java.util.Set;
 import static co.edu.uniquindio.sga.domain.Escenario.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de la planificación de recordatorios de llegada y salida. */
 class PlanificadorRecordatoriosTest {
 
     private final PlanificadorRecordatorios planificador = new PlanificadorRecordatorios();

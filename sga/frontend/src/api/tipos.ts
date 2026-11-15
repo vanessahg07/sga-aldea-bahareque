@@ -270,7 +270,7 @@ export interface Folio {
   autorizacionCierre: { autor: string; motivo: string; fecha: string } | null
 }
 
-// --- Canales externos (Corte 4) ---
+// --- Canales externos ---
 
 export type TipoCanal = 'AGENCIA_EN_LINEA' | 'AGENCIA_DE_VIAJES' | 'METABUSCADOR'
 export type TipoEventoCanal = 'CONSULTA_DISPONIBILIDAD' | 'RESERVA_ACEPTADA' | 'RESERVA_DUPLICADA' | 'RESERVA_EN_CONFLICTO'

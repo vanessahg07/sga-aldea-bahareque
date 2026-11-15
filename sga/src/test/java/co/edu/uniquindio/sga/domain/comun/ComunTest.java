@@ -13,6 +13,7 @@ import static co.edu.uniquindio.sga.domain.Escenario.capturar;
 import static co.edu.uniquindio.sga.domain.Escenario.noviembre;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** Pruebas de los objetos de valor comunes: estancias, noches, solapamiento de fechas y dinero. */
 class ComunTest {
 
     @Nested

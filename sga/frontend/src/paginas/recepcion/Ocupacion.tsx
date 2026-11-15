@@ -1,3 +1,4 @@
+/** Calendario de ocupación por apartamento. */
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useQueries, useQuery } from '@tanstack/react-query'

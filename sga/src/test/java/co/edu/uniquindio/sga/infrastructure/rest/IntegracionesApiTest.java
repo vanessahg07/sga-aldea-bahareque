@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Corte 4: canal externo, reportes, recordatorios, IA e imágenes con las alternativas
+ * Integraciones: canal externo, reportes, recordatorios, IA e imágenes con las alternativas
  * locales (I-08). Usa su propia base en memoria para conocer la credencial del canal.
  */
 @SpringBootTest(properties = {

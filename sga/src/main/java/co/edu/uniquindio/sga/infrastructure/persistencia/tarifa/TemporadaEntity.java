@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Tabla de temporadas con sus rangos de fechas. Una temporada retirada queda inactiva. */
 @Entity
 @Table(name = "temporada")
 @Getter

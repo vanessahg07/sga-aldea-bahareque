@@ -1,3 +1,4 @@
+/** Historial de reservas del huésped autenticado. */
 import { useState } from 'react'
 import { Link as RouterLink, useNavigate } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
