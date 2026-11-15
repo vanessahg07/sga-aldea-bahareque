@@ -2,6 +2,8 @@ package co.edu.uniquindio.sga.infrastructure.configuracion;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 /**
  * Configuración técnica del SGA (prefijo {@code sga}). Los valores del negocio no viven
  * aquí: son datos del alojamiento que el administrador edita. Las credenciales de las
@@ -9,24 +11,32 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "sga")
 public record PropiedadesSga(String zonaHoraria, Jwt jwt, DatosPrueba datosPrueba, Reservas reservas,
-                             Notificaciones notificaciones, Ia ia, Imagenes imagenes, Frontend frontend) {
+                             Notificaciones notificaciones, Ia ia, Imagenes imagenes, Frontend frontend,
+                             Cors cors) {
 
     public PropiedadesSga {
         zonaHoraria = zonaHoraria == null ? "America/Bogota" : zonaHoraria;
-        jwt = jwt == null ? new Jwt(null, 480, "sga-aldea-bahareque") : jwt;
+        jwt = jwt == null ? new Jwt(null, false, 480, "sga-aldea-bahareque") : jwt;
         datosPrueba = datosPrueba == null ? new DatosPrueba(true, null, null) : datosPrueba;
         reservas = reservas == null ? new Reservas(60_000) : reservas;
         notificaciones = notificaciones == null ? new Notificaciones("memoria", null, 10_000, null) : notificaciones;
         ia = ia == null ? new Ia(false, "simulado", null, null, null, 5_000) : ia;
         imagenes = imagenes == null ? new Imagenes("local", null, 15_000, null) : imagenes;
         frontend = frontend == null ? new Frontend(null) : frontend;
+        cors = cors == null ? new Cors(List.of()) : cors;
     }
 
     /**
-     * @param secreto clave de firma HMAC (mínimo 32 caracteres). Se toma de la variable de
-     *                entorno SGA_JWT_SECRETO; si falta, se genera una al arrancar.
+     * Firma y vigencia de los tokens de sesión.
+     *
+     * @param secreto            clave de firma HMAC (mínimo 32 caracteres), desde la variable de entorno
+     *                           SGA_JWT_SECRETO
+     * @param secretoObligatorio si es {@code true} (perfiles de despliegue), la aplicación no arranca sin
+     *                           secreto; si es {@code false} (desarrollo), se genera una clave temporal
+     * @param minutosExpiracion  vigencia del token desde su emisión
+     * @param emisor             valor del claim {@code iss}; los tokens de otro emisor se rechazan
      */
-    public record Jwt(String secreto, long minutosExpiracion, String emisor) {
+    public record Jwt(String secreto, boolean secretoObligatorio, long minutosExpiracion, String emisor) {
     }
 
     /**
@@ -94,7 +104,20 @@ public record PropiedadesSga(String zonaHoraria, Jwt jwt, DatosPrueba datosPrueb
     public record Cloudinary(String nube, String claveApi, String secretoApi, String carpeta) {
     }
 
-    /** @param directorio carpeta con el frontend compilado para servirlo desde el mismo servidor (despliegue) */
+    /** @param directorio carpeta con el frontend compilado, si se sirve desde el mismo servidor (opcional) */
     public record Frontend(String directorio) {
+    }
+
+    /**
+     * Orígenes que pueden llamar a la API desde el navegador.
+     *
+     * @param origenes patrones de origen permitidos, por ejemplo {@code https://sga-aldea-bahareque.vercel.app};
+     *                 en desarrollo se usan los de localhost
+     */
+    public record Cors(List<String> origenes) {
+
+        public Cors {
+            origenes = origenes == null ? List.of() : origenes.stream().map(String::trim).filter(o -> !o.isEmpty()).toList();
+        }
     }
 }

@@ -11,9 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 /**
- * Clave HMAC para firmar los JWT. Se toma de la configuración externa (variable
- * SGA_JWT_SECRETO) y nunca se versiona. Si no está configurada, se genera una clave
- * aleatoria al arrancar: los tokens emitidos dejan de valer al reiniciar.
+ * Clave HMAC-SHA256 con la que se firman y validan los JWT.
+ *
+ * <p>Se toma de la variable de entorno {@code SGA_JWT_SECRETO} y nunca se versiona. En los
+ * perfiles de despliegue el secreto es obligatorio y la aplicación no arranca sin él. En
+ * desarrollo, si falta, se genera una clave aleatoria: los tokens dejan de valer al reiniciar.</p>
  */
 @Component
 public class ClaveJwt {
@@ -27,6 +29,9 @@ public class ClaveJwt {
         String secreto = propiedades.jwt().secreto();
         byte[] bytes;
         if (secreto == null || secreto.isBlank()) {
+            if (propiedades.jwt().secretoObligatorio()) {
+                throw new IllegalStateException("Falta SGA_JWT_SECRETO: es obligatorio en el despliegue");
+            }
             bytes = new byte[LONGITUD_MINIMA];
             new SecureRandom().nextBytes(bytes);
             LOG.warn("SGA_JWT_SECRETO no está configurado: se generó una clave temporal para esta ejecución.");

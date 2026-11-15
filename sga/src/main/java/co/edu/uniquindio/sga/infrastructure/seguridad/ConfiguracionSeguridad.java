@@ -1,5 +1,6 @@
 package co.edu.uniquindio.sga.infrastructure.seguridad;
 
+import co.edu.uniquindio.sga.infrastructure.configuracion.PropiedadesSga;
 import co.edu.uniquindio.sga.infrastructure.rest.comun.ErrorRespuesta;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -26,11 +28,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Seguridad sin estado con JWT. Cada endpoint se protege por rol aquí y en los
- * controladores; la restricción por propietario del recurso se aplica en los casos de uso.
+ * Seguridad de la API: sesión sin estado con JWT firmado por el propio sistema.
+ *
+ * <ul>
+ *   <li>Rutas públicas: autenticación, catálogo de apartamentos, disponibilidad, cotización y el canal
+ *       externo (que se autentica con su propia credencial).</li>
+ *   <li>Rutas por rol: {@code @PreAuthorize} en cada controlador, habilitado con {@link EnableMethodSecurity}.</li>
+ *   <li>Restricción por propietario del recurso: en los casos de uso, con {@code Solicitante.exigirAcceso}.</li>
+ *   <li>Los 401 y 403 responden con el mismo {@link ErrorRespuesta} que el resto de la API.</li>
+ * </ul>
  */
 @Configuration
 @EnableMethodSecurity
@@ -94,9 +104,15 @@ public class ConfiguracionSeguridad {
         return new NimbusJwtEncoder(new ImmutableSecret<>(clave.clave()));
     }
 
+    /**
+     * Valida la firma con el algoritmo fijo HS256 (un token que declare otro algoritmo se rechaza),
+     * la expiración y que el emisor sea este sistema.
+     */
     @Bean
-    public JwtDecoder jwtDecoder(ClaveJwt clave) {
-        return NimbusJwtDecoder.withSecretKey(clave.clave()).macAlgorithm(MacAlgorithm.HS256).build();
+    public JwtDecoder jwtDecoder(ClaveJwt clave, PropiedadesSga propiedades) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(clave.clave()).macAlgorithm(MacAlgorithm.HS256).build();
+        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(propiedades.jwt().emisor()));
+        return decoder;
     }
 
     @Bean
@@ -105,15 +121,19 @@ public class ConfiguracionSeguridad {
     }
 
     /**
-     * En desarrollo el frontend de React se sirve aparte (Vite en el puerto 5173). En el
-     * despliegue lo entrega este mismo servidor, así que no hay peticiones de otro origen.
+     * Orígenes que pueden llamar a la API desde el navegador. En desarrollo, el frontend de Vite
+     * (localhost); en el despliegue, el dominio del frontend configurado en {@code SGA_CORS_ORIGENES}.
+     * Se expone {@code Content-Disposition} para que el navegador lea el nombre de los archivos CSV.
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(PropiedadesSga propiedades) {
+        List<String> origenes = new ArrayList<>(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        origenes.addAll(propiedades.cors().origenes());
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        cors.setAllowedOriginPatterns(origenes);
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("*"));
+        cors.setExposedHeaders(List.of("Content-Disposition"));
         UrlBasedCorsConfigurationSource fuente = new UrlBasedCorsConfigurationSource();
         fuente.registerCorsConfiguration("/api/**", cors);
         return fuente;
