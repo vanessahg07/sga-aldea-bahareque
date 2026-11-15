@@ -18,6 +18,10 @@ npm run lint         # oxlint
 
 Opcional: copie `.env.example` como `.env.local` y defina `VITE_MAPBOX_TOKEN` para ver el mapa de Mapbox. Sin token, la ubicación se muestra con un enlace a OpenStreetMap y todo funciona igual.
 
+## Despliegue en Vercel
+
+El proyecto de Vercel usa esta carpeta (`frontend`) como directorio raíz; `vercel.json` define la compilación y redirige todas las rutas a `index.html`. En las variables de entorno de Vercel se define `VITE_API_URL` con el dominio del backend en Render (por ejemplo `https://sga-api.onrender.com`, sin barra final). En desarrollo esa variable se deja vacía y Vite reenvía `/api` al backend local.
+
 ## Estructura
 
 ```

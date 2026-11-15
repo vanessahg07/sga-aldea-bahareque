@@ -3,7 +3,7 @@
 ![Java 25](https://img.shields.io/badge/Java-25-34533A)
 ![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-34533A)
 ![React 19](https://img.shields.io/badge/React-19-34533A)
-![Pruebas](https://img.shields.io/badge/pruebas-263%20en%20verde-2F6B3E)
+![Pruebas](https://img.shields.io/badge/pruebas-268%20en%20verde-2F6B3E)
 ![Estado](https://img.shields.io/badge/cortes-1%20a%204%20en%20código-C9A55A)
 
 **SGA - Sistema de Gestión de Alojamiento** para *Aldea Bahareque*, siete apartamentos turísticos independientes en Filandia, Quindío, en el Paisaje Cultural Cafetero. El sistema gestiona inventario, tarifas por temporada, disponibilidad, reservas, operación diaria y folios, y vende por tres canales (portal, directo y agencias externas) sin vender nunca dos veces la misma noche.
@@ -19,6 +19,7 @@ Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sist
 - [Tecnologías](#tecnologías)
 - [Cómo ejecutar](#cómo-ejecutar)
 - [Configuración](#configuración)
+- [Despliegue](#despliegue)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Pruebas](#pruebas)
 - [Documentación](#documentación)
@@ -33,11 +34,11 @@ Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sist
 
 ## Estado actual
 
-Los cuatro cortes están implementados en código y pasan sus 263 pruebas. Falta lo que depende de cuentas o aprobaciones externas:
+Los cuatro cortes están implementados en código y pasan sus 268 pruebas. Falta lo que depende de cuentas o aprobaciones externas:
 
 | Pendiente | Detalle |
 |---|---|
-| Publicar el despliegue | El `Dockerfile` y el blueprint `render.yaml` están listos y verificados localmente; falta crear el servicio con la cuenta de Render |
+| Publicar el despliegue | Backend y PostgreSQL en Render (`render.yaml`) y frontend en Vercel (`frontend/vercel.json`) están listos y probados localmente; falta crearlos con las cuentas (ver [Despliegue](#despliegue)) |
 | Probar correo e IA reales | Funcionan con sus alternativas locales (memoria y simulado); falta configurar credenciales SMTP y un proveedor de IA |
 | Aprobación de las reglas propias | RP-01, RP-02 y RP-03 están implementadas y probadas; falta la aprobación del docente |
 
@@ -72,7 +73,7 @@ Reglas destacadas del negocio: no hay doble venta sin importar el canal (RN-01),
 | Base de datos | H2 en memoria (desarrollo), H2 en archivo (perfil `prod`) o PostgreSQL (perfil `postgres`) |
 | Frontend | React 19, TypeScript, Vite, Material UI 9, React Router y TanStack Query |
 | Integraciones | SMTP, IA compatible con `/chat/completions` (Ollama, Groq…), Cloudinary; todas con alternativa local sin internet |
-| Despliegue | Docker (una sola imagen con API y frontend) y Render |
+| Despliegue | Backend en Render (Docker) con PostgreSQL de Render; frontend en Vercel |
 | Pruebas de API | Colección [Bruno](https://www.usebruno.com/) en `bruno/` |
 
 ## Cómo ejecutar
@@ -104,14 +105,6 @@ npm install
 npm run dev              # http://localhost:5173
 ```
 
-### 3. Todo junto con Docker
-
-```bash
-docker build -t sga-aldea-bahareque .
-docker run -p 8080:8080 -v sga-datos:/app/datos -e SGA_JWT_SECRETO=<32+ caracteres> sga-aldea-bahareque
-```
-
-La imagen sirve la API y el frontend en `http://localhost:8080` y guarda los datos en el volumen `sga-datos`.
 
 ### Usuarios de demostración
 
@@ -135,14 +128,43 @@ Ningún secreto se versiona: todo se configura con variables de entorno y cada i
 
 | Variable | Uso | Si no se define |
 |---|---|---|
-| `SGA_JWT_SECRETO` | Clave de firma de los tokens (32+ caracteres) | Se genera una temporal en cada arranque |
+| `SGA_JWT_SECRETO` | Clave de firma de los tokens (32+ caracteres) | En desarrollo se genera una temporal; en el despliegue la aplicación no arranca |
+| `SGA_JWT_MINUTOS_EXPIRACION` | Vigencia del token de sesión | `60` |
+| `SGA_CORS_ORIGENES` | Dominio del frontend desplegado (Vercel), separados por coma | Solo `localhost` |
 | `SGA_CONTRASENA_DEMO` | Contraseña de los usuarios de demostración | `Bahareque2026` |
 | `SGA_CREDENCIAL_CANAL_DEMO` | Credencial del canal de demostración ViajaEje | Se genera y se muestra en el log |
 | `SGA_NOTIFICACIONES` | `memoria` o `smtp` | `memoria` |
 | `SGA_IA_HABILITADA`, `SGA_IA_PROVEEDOR` | Sugerencia de gravedad por IA: `simulado` u `openai` | Habilitada, `simulado` |
 | `SGA_IMAGENES` | `local` o `cloudinary` | `local` |
+| `SGA_BD_HOST`, `SGA_BD_PUERTO`, `SGA_BD_NOMBRE`, `SGA_BD_USUARIO`, `SGA_BD_CLAVE` | Conexión a PostgreSQL (perfil `postgres`); o la URL JDBC completa en `SGA_BD_URL` | — |
+| `VITE_API_URL` (frontend) | Dominio del backend desplegado | Vacío: en desarrollo Vite reenvía `/api` al puerto 9090 |
 
 La lista completa (SMTP, IA, Cloudinary, PostgreSQL y despliegue) está en [docs/integraciones.md](docs/integraciones.md).
+
+## Despliegue
+
+El backend y su base de datos se publican en **Render**; el frontend, en **Vercel**.
+
+```
+Navegador ──► Vercel (frontend React) ──► Render (API Spring Boot, perfil postgres) ──► PostgreSQL de Render
+```
+
+### 1. Backend y base de datos en Render
+
+1. Subir el repositorio a GitHub.
+2. En Render: **New → Blueprint**, elegir el repositorio. Render lee `render.yaml` y crea la base `sga-bd` (PostgreSQL) y el servicio `sga-api`, que se construye con el `Dockerfile`.
+3. Render genera `SGA_JWT_SECRETO` y conecta la base automáticamente. En el panel del servicio quedan por completar:
+   - `SGA_CORS_ORIGENES`: el dominio de Vercel (paso 2), por ejemplo `https://sga-aldea-bahareque.vercel.app`.
+   - `SGA_CONTRASENA_DEMO` y `SGA_CREDENCIAL_CANAL_DEMO` (opcionales).
+4. Al primer arranque se crean las tablas y se cargan los datos de demostración. Comprobar en `https://<servicio>.onrender.com/api/alojamiento`.
+
+En el plan gratuito el servicio se suspende tras un rato sin uso (la primera petición tarda unos segundos), el disco no es persistente (para conservar imágenes subidas usar `SGA_IMAGENES=cloudinary`) y la base gratuita tiene vigencia limitada.
+
+### 2. Frontend en Vercel
+
+1. En Vercel: **Add New → Project**, importar el repositorio y elegir `frontend` como **Root Directory**. `frontend/vercel.json` define la compilación y redirige todas las rutas a `index.html`.
+2. En **Environment Variables**: `VITE_API_URL=https://<servicio>.onrender.com` (sin barra final) y, si se tiene, `VITE_MAPBOX_TOKEN`.
+3. Desplegar y copiar el dominio asignado en `SGA_CORS_ORIGENES` del backend en Render.
 
 ## Estructura del proyecto
 
@@ -165,8 +187,8 @@ sga/
 ├── frontend/              Interfaz React (ver frontend/README.md)
 ├── bruno/                 Colección de peticiones y simulador del canal externo
 ├── docs/                  Documentación del proyecto y de las entregas
-├── Dockerfile             Imagen de despliegue (API + frontend)
-└── render.yaml            Blueprint de despliegue en Render
+├── Dockerfile             Imagen del backend para Render
+└── render.yaml            Blueprint de Render: PostgreSQL y servicio web del backend
 ```
 
 ## Pruebas
