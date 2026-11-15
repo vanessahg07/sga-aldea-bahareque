@@ -1,3 +1,4 @@
+/** Perfil del usuario: datos personales, foto y cambio de contraseña. */
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Avatar, Button, Card, CardContent, Container, Grid, Stack, TextField, Typography } from '@mui/material'
@@ -9,6 +10,7 @@ import { Cargando, Dato, Encabezado, MensajeError } from '../../componentes/Comu
 import { colores } from '../../tema/tema'
 import { nombreRol } from '../../utilidades/estados'
 import { formatoFecha } from '../../utilidades/formato'
+import { urlRecurso } from '../../api/cliente'
 
 export function Perfil() {
   const consulta = useQuery({ queryKey: ['perfil'], queryFn: perfil.consultar })
@@ -42,7 +44,7 @@ function FormularioPerfil({ usuario: u }: { usuario: Usuario }) {
           <Card>
             <CardContent>
               <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 3 }}>
-                <Avatar src={datos.fotoUrl || undefined} sx={{ width: 64, height: 64, bgcolor: colores.teja, fontSize: 26 }}>
+                <Avatar src={urlRecurso(datos.fotoUrl)} sx={{ width: 64, height: 64, bgcolor: colores.teja, fontSize: 26 }}>
                   {u.nombre.charAt(0)}
                 </Avatar>
                 <Stack>

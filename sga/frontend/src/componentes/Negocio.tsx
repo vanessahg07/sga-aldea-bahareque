@@ -1,3 +1,4 @@
+/** Componentes del negocio: tarjeta de apartamento, desglose de la cotización, ocupantes, calendario y mapa. */
 import { useMemo } from 'react'
 import {
   Box, Button, Card, CardActionArea, CardContent, CardMedia, Chip, IconButton, Link, Stack, Table, TableBody,
@@ -12,6 +13,7 @@ import type { Cotizacion, Noche, Ocupante, Tarjeta } from '../api/tipos'
 import { colores } from '../tema/tema'
 import { aFecha, etiqueta, formatoDia, formatoPesos, isoLocal } from '../utilidades/formato'
 import { CampoFecha } from './Comunes'
+import { urlRecurso } from '../api/cliente'
 
 /** Desglose noche por noche: fecha, temporada, tarifa, facturables y subtotal. */
 export function DesgloseCotizacion({ cotizacion, compacto }: { cotizacion: Cotizacion; compacto?: boolean }) {
@@ -200,7 +202,7 @@ export function TarjetaApartamento({ tarjeta, alAbrir }: { tarjeta: Tarjeta; alA
   return (
     <Card sx={{ height: '100%' }}>
       <CardActionArea onClick={alAbrir} sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
-        <CardMedia component="img" image={tarjeta.imagenPrincipal ?? undefined} alt={tarjeta.nombre}
+        <CardMedia component="img" image={urlRecurso(tarjeta.imagenPrincipal)} alt={tarjeta.nombre}
                    sx={{ height: 180, bgcolor: colores.borde }} />
         <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>

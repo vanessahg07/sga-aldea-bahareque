@@ -1,3 +1,4 @@
+/** Detalle administrativo de un apartamento: datos, imágenes, activación, bloqueos, tarifas y novedades. */
 import { useState } from 'react'
 import { Link as RouterLink, useNavigate, useParams } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -16,6 +17,7 @@ import { colores } from '../../tema/tema'
 import { ESTADOS_OPERATIVOS, estiloOperativo } from '../../utilidades/estados'
 import { etiqueta, formatoFecha, formatoFechaHora, formatoPesos, hoyIso, sumarDias } from '../../utilidades/formato'
 import { FormularioApartamento, type DatosFormulario } from './FormularioApartamento'
+import { urlRecurso } from '../../api/cliente'
 
 export function AdminApartamento() {
   const { codigo = '' } = useParams()
@@ -125,7 +127,7 @@ function EditorApartamento({ apartamento: a }: { apartamento: Apartamento }) {
             {imagenes.map((img, i) => (
               <Grid key={img.url + i} size={{ xs: 6, sm: 4, md: 3 }}>
                 <Box sx={{ position: 'relative', border: 2, borderColor: img.principal ? colores.teja : 'transparent', borderRadius: 2, overflow: 'hidden' }}>
-                  <Box component="img" src={img.url} alt="" sx={{ width: '100%', height: 120, objectFit: 'cover', display: 'block', bgcolor: colores.borde }} />
+                  <Box component="img" src={urlRecurso(img.url)} alt="" sx={{ width: '100%', height: 120, objectFit: 'cover', display: 'block', bgcolor: colores.borde }} />
                   <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', px: 0.5 }}>
                     <Tooltip title="Imagen principal">
                       <Radio size="small" checked={img.principal} onChange={() => setImagenes(imagenes.map((x, j) => ({ ...x, principal: j === i })))} />

@@ -1,3 +1,4 @@
+/** Detalle público de un apartamento: galería, dotación, calendario, mapa, cotización y reserva por el portal. */
 import { useState } from 'react'
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -16,6 +17,7 @@ import { Cargando, CampoFecha, CampoHora, MensajeError } from '../../componentes
 import { CalendarioDisponibilidad, DesgloseCotizacion, EditorOcupantes, MapaUbicacion } from '../../componentes/Negocio'
 import { colores } from '../../tema/tema'
 import { etiqueta, fechasDelGrupo, formatoHora, formatoPesos, hoyIso, sumarDias } from '../../utilidades/formato'
+import { urlRecurso } from '../../api/cliente'
 
 export function DetalleApartamento() {
   const { codigo = '' } = useParams()
@@ -84,13 +86,13 @@ export function DetalleApartamento() {
 
       <Grid container spacing={1.5} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <Box component="img" src={imagenes[imagen].url} alt={`${a.nombre}, imagen ${imagen + 1}`}
+          <Box component="img" src={urlRecurso(imagenes[imagen].url)} alt={`${a.nombre}, imagen ${imagen + 1}`}
                sx={{ width: '100%', height: { xs: 240, md: 420 }, objectFit: 'cover', borderRadius: 2, bgcolor: colores.borde }} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(4, 1fr)', md: '1fr 1fr' }, gap: 1.5 }}>
             {imagenes.map((img, i) => (
-              <Box key={img.url + i} component="img" src={img.url} alt={`Miniatura ${i + 1}`} onClick={() => setImagen(i)}
+              <Box key={img.url + i} component="img" src={urlRecurso(img.url)} alt={`Miniatura ${i + 1}`} onClick={() => setImagen(i)}
                    sx={{ width: '100%', height: { xs: 70, md: 130 }, objectFit: 'cover', borderRadius: 1.5, cursor: 'pointer',
                          outline: i === imagen ? `3px solid ${colores.teja}` : 'none', bgcolor: colores.borde }} />
             ))}

@@ -1,3 +1,4 @@
+/** Estructura de la aplicación: barra superior, menú según el rol y pie de página. */
 import { useState } from 'react'
 import { Link as RouterLink, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import {
@@ -12,6 +13,7 @@ import type { Rol } from '../api/tipos'
 import { useSesion } from '../sesion/Sesion'
 import { colores } from '../tema/tema'
 import { nombreRol } from '../utilidades/estados'
+import { urlRecurso } from '../api/cliente'
 
 interface Enlace {
   a: string
@@ -114,7 +116,7 @@ export function Layout() {
             {usuario ? (
               <>
                 <Button color="inherit" onClick={(e) => setMenuUsuario(e.currentTarget)}
-                        startIcon={<Avatar src={usuario.fotoUrl ?? undefined}
+                        startIcon={<Avatar src={urlRecurso(usuario.fotoUrl)}
                                            sx={{ width: 28, height: 28, bgcolor: colores.teja, fontSize: 14 }}>
                           {usuario.nombre.charAt(0)}
                         </Avatar>}>

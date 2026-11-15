@@ -1,4 +1,23 @@
-/** Cliente HTTP de la API: agrega el token de sesión y traduce los errores de negocio. */
+/**
+ * Cliente HTTP de la API del SGA.
+ *
+ * - En desarrollo las rutas son relativas (/api) y Vite las reenvía al backend local.
+ * - En el despliegue VITE_API_URL indica el dominio del backend en Render.
+ * - Agrega el token de sesión a cada petición y traduce los errores de negocio del backend.
+ */
+
+/** Origen del backend sin barra final; vacío en desarrollo. */
+const ORIGEN_API = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
+
+/**
+ * Convierte la URL de un recurso del backend (por ejemplo, una imagen subida en /archivos/...)
+ * en una dirección que el navegador pueda cargar aunque el frontend esté en otro dominio.
+ * Las URL absolutas (Cloudinary) y las imágenes propias del frontend (/imagenes/...) no cambian.
+ */
+export function urlRecurso(url: string | null | undefined): string | undefined {
+  if (!url) return undefined
+  return url.startsWith('/archivos/') ? `${ORIGEN_API}${url}` : url
+}
 
 export class ErrorApi extends Error {
   readonly estado: number
@@ -30,7 +49,7 @@ async function solicitar<T>(metodo: Metodo, ruta: string, cuerpo?: unknown): Pro
 
   let respuesta: Response
   try {
-    respuesta = await fetch(`/api${ruta}`, {
+    respuesta = await fetch(`${ORIGEN_API}/api${ruta}`, {
       method: metodo,
       headers: cabeceras,
       body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
@@ -58,7 +77,7 @@ async function solicitar<T>(metodo: Metodo, ruta: string, cuerpo?: unknown): Pro
 async function enviarFormulario<T>(ruta: string, formulario: FormData): Promise<T> {
   let respuesta: Response
   try {
-    respuesta = await fetch(`/api${ruta}`, {
+    respuesta = await fetch(`${ORIGEN_API}/api${ruta}`, {
       method: 'POST',
       headers: tokenActual ? { Authorization: `Bearer ${tokenActual}` } : {},
       body: formulario,
@@ -77,7 +96,7 @@ async function enviarFormulario<T>(ruta: string, formulario: FormData): Promise<
 
 /** Descarga un archivo de la API con la sesión actual y lo guarda con el nombre que indique el servidor. */
 async function descargar(ruta: string, nombrePorDefecto: string): Promise<void> {
-  const respuesta = await fetch(`/api${ruta}`, { headers: tokenActual ? { Authorization: `Bearer ${tokenActual}` } : {} })
+  const respuesta = await fetch(`${ORIGEN_API}/api${ruta}`, { headers: tokenActual ? { Authorization: `Bearer ${tokenActual}` } : {} })
   if (!respuesta.ok) {
     const datos = await respuesta.json().catch(() => undefined)
     throw new ErrorApi(respuesta.status, datos?.codigo ?? 'ERROR', datos?.mensaje ?? 'No se pudo descargar el archivo')

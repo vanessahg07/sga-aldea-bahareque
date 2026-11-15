@@ -1,3 +1,4 @@
+/** Listado de apartamentos para el administrador y creación de uno nuevo. */
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -10,6 +11,7 @@ import { useAvisos } from '../../componentes/Avisos'
 import { Cargando, Encabezado, EstadoOperativoChip, MensajeError, Paginador } from '../../componentes/Comunes'
 import { colores } from '../../tema/tema'
 import { FormularioApartamento, apartamentoVacio, type DatosFormulario } from './FormularioApartamento'
+import { urlRecurso } from '../../api/cliente'
 
 export function AdminApartamentos() {
   const navegar = useNavigate()
@@ -49,7 +51,7 @@ export function AdminApartamentos() {
                 {consulta.data.contenido.map((a) => (
                   <TableRow key={a.codigo} hover sx={{ cursor: 'pointer' }} onClick={() => navegar(`/admin/apartamentos/${a.codigo}`)}>
                     <TableCell sx={{ width: 72 }}>
-                      <Box component="img" src={a.imagenPrincipal ?? undefined} alt=""
+                      <Box component="img" src={urlRecurso(a.imagenPrincipal)} alt=""
                            sx={{ width: 56, height: 40, objectFit: 'cover', borderRadius: 1, bgcolor: colores.borde, display: 'block' }} />
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>{a.codigo}</TableCell>
