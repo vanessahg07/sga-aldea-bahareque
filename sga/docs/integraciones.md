@@ -51,6 +51,7 @@ Al registrar una novedad, el personal puede pedir una sugerencia de gravedad (ba
 - **Proveedor simulado** (por defecto, sin conexión): `SGA_IA_PROVEEDOR=simulado`.
 - **Modelo local con Ollama:** `SGA_IA_PROVEEDOR=openai`, `SGA_IA_URL=http://localhost:11434/v1`, `SGA_IA_MODELO=llama3.2`.
 - **Groq (nivel gratuito):** `SGA_IA_URL=https://api.groq.com/openai/v1`, `SGA_IA_MODELO=llama-3.1-8b-instant`, `SGA_IA_CLAVE=<clave>`.
+- **OpenRouter (modelos gratuitos `:free`):** `SGA_IA_URL=https://openrouter.ai/api/v1`, `SGA_IA_MODELO=<modelo>:free`, `SGA_IA_CLAVE=<clave>`, `SGA_IA_TIMEOUT_MS=15000`.
 
 ## Imágenes
 
@@ -120,6 +121,7 @@ docker run -p 8080:8080 -e SGA_JWT_SECRETO=<32+ caracteres> -e SGA_BD_URL=jdbc:p
 | `SGA_IA_HABILITADA` | `true` o `false` | `true` |
 | `SGA_IA_PROVEEDOR` | `simulado` u `openai` | `simulado` |
 | `SGA_IA_URL`, `SGA_IA_MODELO`, `SGA_IA_CLAVE` | API compatible con `/chat/completions` | Ollama local, `llama3.2` |
+| `SGA_IA_TIMEOUT_MS` | Tiempo máximo de espera del modelo | `5000` |
 | `SGA_IMAGENES` | `local` o `cloudinary` | `local` |
 | `SGA_IMAGENES_DIRECTORIO` | Carpeta del almacén local | `./datos/imagenes` |
 | `CLOUDINARY_URL` | Credenciales de Cloudinary en una sola variable (`cloudinary://clave:secreto@nube`) | — |

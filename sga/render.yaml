@@ -51,10 +51,32 @@ services:
         sync: false
       - key: SGA_CREDENCIAL_CANAL_DEMO
         sync: false
+      # Sugerencia de gravedad con un modelo de OpenRouter (API compatible con /chat/completions).
+      # SGA_IA_MODELO es el identificador del modelo, por ejemplo uno gratuito terminado en :free.
       - key: SGA_IA_PROVEEDOR
-        value: simulado
+        value: openai
+      - key: SGA_IA_URL
+        value: https://openrouter.ai/api/v1
+      - key: SGA_IA_MODELO
+        sync: false
+      - key: SGA_IA_CLAVE
+        sync: false
+      - key: SGA_IA_TIMEOUT_MS
+        value: "15000"
+      # Correos por SMTP (Brevo). El plan gratuito de Render bloquea los puertos 25, 465 y 587,
+      # por eso se usa el 2525. El remitente debe estar verificado en Brevo.
       - key: SGA_NOTIFICACIONES
-        value: memoria
+        value: smtp
+      - key: SGA_SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SGA_SMTP_PUERTO
+        value: "2525"
+      - key: SGA_SMTP_USUARIO
+        sync: false
+      - key: SGA_SMTP_CLAVE
+        sync: false
+      - key: SGA_SMTP_REMITENTE
+        sync: false
       # Imágenes subidas en Cloudinary: el disco del plan gratuito de Render no es persistente.
       # CLOUDINARY_URL se copia del panel de Cloudinary (cloudinary://clave:secreto@nube).
       - key: SGA_IMAGENES
