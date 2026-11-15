@@ -52,7 +52,9 @@ services:
         value: simulado
       - key: SGA_NOTIFICACIONES
         value: memoria
-      # El disco del plan gratuito no es persistente: para conservar las imágenes subidas,
-      # cambiar a cloudinary y cargar SGA_CLOUDINARY_NUBE, SGA_CLOUDINARY_CLAVE y SGA_CLOUDINARY_SECRETO.
+      # Imágenes subidas en Cloudinary: el disco del plan gratuito de Render no es persistente.
+      # CLOUDINARY_URL se copia del panel de Cloudinary (cloudinary://clave:secreto@nube).
       - key: SGA_IMAGENES
-        value: local
+        value: cloudinary
+      - key: CLOUDINARY_URL
+        sync: false

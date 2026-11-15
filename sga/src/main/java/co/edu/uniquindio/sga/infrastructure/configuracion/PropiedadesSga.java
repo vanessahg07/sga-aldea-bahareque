@@ -3,6 +3,8 @@ package co.edu.uniquindio.sga.infrastructure.configuracion;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Configuración técnica del SGA (prefijo {@code sga}). Los valores del negocio no viven
@@ -96,12 +98,33 @@ public record PropiedadesSga(String zonaHoraria, Jwt jwt, DatosPrueba datosPrueb
             proveedor = proveedor == null || proveedor.isBlank() ? "local" : proveedor;
             directorio = directorio == null || directorio.isBlank() ? "./datos/imagenes" : directorio;
             timeoutMs = timeoutMs <= 0 ? 15_000 : timeoutMs;
-            cloudinary = cloudinary == null ? new Cloudinary(null, null, null, "sga") : cloudinary;
+            cloudinary = cloudinary == null ? new Cloudinary(null, null, null, "sga", null) : cloudinary;
         }
     }
 
-    /** Credenciales de Cloudinary, desde variables de entorno. */
-    public record Cloudinary(String nube, String claveApi, String secretoApi, String carpeta) {
+    /**
+     * Credenciales de Cloudinary, desde variables de entorno. Se pueden dar por separado
+     * (SGA_CLOUDINARY_NUBE, SGA_CLOUDINARY_CLAVE y SGA_CLOUDINARY_SECRETO) o en la variable
+     * estándar {@code CLOUDINARY_URL} con el formato {@code cloudinary://clave:secreto@nube};
+     * los valores separados tienen prioridad.
+     */
+    public record Cloudinary(String nube, String claveApi, String secretoApi, String carpeta, String url) {
+
+        private static final Pattern FORMATO_URL =
+                Pattern.compile("^cloudinary://([^:]+):([^@]+)@(.+)$");
+
+        public Cloudinary {
+            Matcher partes = url == null ? null : FORMATO_URL.matcher(url.trim());
+            if (partes != null && partes.matches()) {
+                claveApi = vacio(claveApi) ? partes.group(1) : claveApi;
+                secretoApi = vacio(secretoApi) ? partes.group(2) : secretoApi;
+                nube = vacio(nube) ? partes.group(3) : nube;
+            }
+        }
+
+        private static boolean vacio(String valor) {
+            return valor == null || valor.isBlank();
+        }
     }
 
     /** @param directorio carpeta con el frontend compilado, si se sirve desde el mismo servidor (opcional) */

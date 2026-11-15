@@ -97,7 +97,7 @@ En los perfiles `prod` y `postgres` la clave del JWT es obligatoria: sin `SGA_JW
 
 - **Render:** *New → Blueprint* con este repositorio usa `render.yaml`, que crea la base PostgreSQL `sga-bd` y el servicio `sga-api` a partir del `Dockerfile` (solo backend). Render conecta la base y genera `SGA_JWT_SECRETO`; en el panel se completa `SGA_CORS_ORIGENES` con el dominio de Vercel y, si se quiere, `SGA_CONTRASENA_DEMO` y `SGA_CREDENCIAL_CANAL_DEMO`.
 - **Vercel:** proyecto con `frontend` como directorio raíz; `frontend/vercel.json` define la compilación y la redirección de rutas a `index.html`. La variable `VITE_API_URL` apunta al servicio de Render.
-- El disco del plan gratuito de Render no es persistente: las imágenes subidas con el almacén local se pierden al redesplegar. Para conservarlas se usa `SGA_IMAGENES=cloudinary`.
+- El disco del plan gratuito de Render no es persistente, por eso el blueprint usa `SGA_IMAGENES=cloudinary`: en el panel se carga `CLOUDINARY_URL` con el valor que muestra Cloudinary.
 
 Para probar la imagen del backend en local contra un PostgreSQL:
 
@@ -122,7 +122,8 @@ docker run -p 8080:8080 -e SGA_JWT_SECRETO=<32+ caracteres> -e SGA_BD_URL=jdbc:p
 | `SGA_IA_URL`, `SGA_IA_MODELO`, `SGA_IA_CLAVE` | API compatible con `/chat/completions` | Ollama local, `llama3.2` |
 | `SGA_IMAGENES` | `local` o `cloudinary` | `local` |
 | `SGA_IMAGENES_DIRECTORIO` | Carpeta del almacén local | `./datos/imagenes` |
-| `SGA_CLOUDINARY_NUBE`, `SGA_CLOUDINARY_CLAVE`, `SGA_CLOUDINARY_SECRETO` | Cuenta de Cloudinary | — |
+| `CLOUDINARY_URL` | Credenciales de Cloudinary en una sola variable (`cloudinary://clave:secreto@nube`) | — |
+| `SGA_CLOUDINARY_NUBE`, `SGA_CLOUDINARY_CLAVE`, `SGA_CLOUDINARY_SECRETO` | Cuenta de Cloudinary por separado (tienen prioridad sobre `CLOUDINARY_URL`) | — |
 | `SGA_FRONTEND_DIRECTORIO` | Frontend compilado servido por el backend (opcional) | — |
 | `SGA_DATOS` | Carpeta de datos del perfil `prod` | `./datos` |
 | `SGA_BD_HOST`, `SGA_BD_PUERTO`, `SGA_BD_NOMBRE`, `SGA_BD_USUARIO`, `SGA_BD_CLAVE` | PostgreSQL del perfil `postgres` | Puerto `5432` |

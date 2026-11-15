@@ -39,8 +39,8 @@ public class AlmacenImagenesCloudinary implements AlmacenImagenes {
 
     public AlmacenImagenesCloudinary(PropiedadesSga.Cloudinary credenciales, int timeoutMs, Clock reloj) {
         if (vacio(credenciales.nube()) || vacio(credenciales.claveApi()) || vacio(credenciales.secretoApi())) {
-            throw new IllegalStateException("sga.imagenes.proveedor=cloudinary requiere SGA_CLOUDINARY_NUBE, "
-                    + "SGA_CLOUDINARY_CLAVE y SGA_CLOUDINARY_SECRETO");
+            throw new IllegalStateException("sga.imagenes.proveedor=cloudinary requiere CLOUDINARY_URL "
+                    + "o SGA_CLOUDINARY_NUBE, SGA_CLOUDINARY_CLAVE y SGA_CLOUDINARY_SECRETO");
         }
         JdkClientHttpRequestFactory fabrica = new JdkClientHttpRequestFactory(HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(timeoutMs)).build());

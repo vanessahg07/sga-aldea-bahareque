@@ -3,7 +3,7 @@
 ![Java 25](https://img.shields.io/badge/Java-25-34533A)
 ![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-34533A)
 ![React 19](https://img.shields.io/badge/React-19-34533A)
-![Pruebas](https://img.shields.io/badge/pruebas-268%20en%20verde-2F6B3E)
+![Pruebas](https://img.shields.io/badge/pruebas-271%20en%20verde-2F6B3E)
 ![Estado](https://img.shields.io/badge/cortes-1%20a%204%20en%20código-C9A55A)
 
 **SGA - Sistema de Gestión de Alojamiento** para *Aldea Bahareque*, siete apartamentos turísticos independientes en Filandia, Quindío, en el Paisaje Cultural Cafetero. El sistema gestiona inventario, tarifas por temporada, disponibilidad, reservas, operación diaria y folios, y vende por tres canales (portal, directo y agencias externas) sin vender nunca dos veces la misma noche.
@@ -34,7 +34,7 @@ Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sist
 
 ## Estado actual
 
-Los cuatro cortes están implementados en código y pasan sus 268 pruebas. Falta lo que depende de cuentas o aprobaciones externas:
+Los cuatro cortes están implementados en código y pasan sus 271 pruebas. Falta lo que depende de cuentas o aprobaciones externas:
 
 | Pendiente | Detalle |
 |---|---|
@@ -135,7 +135,8 @@ Ningún secreto se versiona: todo se configura con variables de entorno y cada i
 | `SGA_CREDENCIAL_CANAL_DEMO` | Credencial del canal de demostración ViajaEje | Se genera y se muestra en el log |
 | `SGA_NOTIFICACIONES` | `memoria` o `smtp` | `memoria` |
 | `SGA_IA_HABILITADA`, `SGA_IA_PROVEEDOR` | Sugerencia de gravedad por IA: `simulado` u `openai` | Habilitada, `simulado` |
-| `SGA_IMAGENES` | `local` o `cloudinary` | `local` |
+| `SGA_IMAGENES` | `local` o `cloudinary` | `local` (en Render, `cloudinary`) |
+| `CLOUDINARY_URL` | Credenciales de Cloudinary en una sola variable (`cloudinary://clave:secreto@nube`) | — |
 | `SGA_BD_HOST`, `SGA_BD_PUERTO`, `SGA_BD_NOMBRE`, `SGA_BD_USUARIO`, `SGA_BD_CLAVE` | Conexión a PostgreSQL (perfil `postgres`); o la URL JDBC completa en `SGA_BD_URL` | — |
 | `VITE_API_URL` (frontend) | Dominio del backend desplegado | Vacío: en desarrollo Vite reenvía `/api` al puerto 9090 |
 
@@ -155,10 +156,11 @@ Navegador ──► Vercel (frontend React) ──► Render (API Spring Boot, p
 2. En Render: **New → Blueprint**, elegir el repositorio. Render lee `render.yaml` y crea la base `sga-bd` (PostgreSQL) y el servicio `sga-api`, que se construye con el `Dockerfile`.
 3. Render genera `SGA_JWT_SECRETO` y conecta la base automáticamente. En el panel del servicio quedan por completar:
    - `SGA_CORS_ORIGENES`: el dominio de Vercel (paso 2), por ejemplo `https://sga-aldea-bahareque.vercel.app`.
+   - `CLOUDINARY_URL`: la variable de entorno que muestra el panel de Cloudinary, para guardar las imágenes subidas.
    - `SGA_CONTRASENA_DEMO` y `SGA_CREDENCIAL_CANAL_DEMO` (opcionales).
 4. Al primer arranque se crean las tablas y se cargan los datos de demostración. Comprobar en `https://<servicio>.onrender.com/api/alojamiento`.
 
-En el plan gratuito el servicio se suspende tras un rato sin uso (la primera petición tarda unos segundos), el disco no es persistente (para conservar imágenes subidas usar `SGA_IMAGENES=cloudinary`) y la base gratuita tiene vigencia limitada.
+En el plan gratuito el servicio se suspende tras un rato sin uso (la primera petición tarda unos segundos), el disco no es persistente (por eso las imágenes subidas van a Cloudinary) y la base gratuita tiene vigencia limitada.
 
 ### 2. Frontend en Vercel
 
