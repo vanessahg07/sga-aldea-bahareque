@@ -25,6 +25,8 @@ import java.util.List;
 public class ReservaControlador {
 
     private static final String PERSONAL = "hasAnyRole('RECEPCIONISTA', 'ADMINISTRADOR')";
+    /** Huésped (solo sus reservas, verificado en el caso de uso), recepción y administración. */
+    private static final String TITULAR_O_PERSONAL = "hasAnyRole('HUESPED', 'RECEPCIONISTA', 'ADMINISTRADOR')";
 
     public record OcupanteSolicitud(@NotBlank String nombre, @NotNull @Past LocalDate fechaNacimiento) {
     }
@@ -133,6 +135,7 @@ public class ReservaControlador {
 
     /** Un huésped solo puede consultar sus propias reservas. */
     @GetMapping("/{id}")
+    @PreAuthorize(TITULAR_O_PERSONAL)
     public ReservaR consultar(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return ReservaR.de(reservas.consultar(id, solicitante.de(jwt)));
     }
@@ -147,6 +150,7 @@ public class ReservaControlador {
     }
 
     @PutMapping("/{id}/hora-llegada")
+    @PreAuthorize(TITULAR_O_PERSONAL)
     public ReservaR registrarHoraLlegada(@PathVariable String id, @Valid @RequestBody HoraLlegadaSolicitud s,
                                          @AuthenticationPrincipal Jwt jwt) {
         return ReservaR.de(reservas.registrarHoraLlegada(id, s.horaEstimadaLlegada(), solicitante.de(jwt)));
@@ -160,6 +164,7 @@ public class ReservaControlador {
 
     /** El huésped cancela sus propias reservas; el personal, cualquiera. */
     @PostMapping("/{id}/cancelacion")
+    @PreAuthorize(TITULAR_O_PERSONAL)
     public ReservaR cancelar(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return ReservaR.de(reservas.cancelar(id, solicitante.de(jwt)));
     }

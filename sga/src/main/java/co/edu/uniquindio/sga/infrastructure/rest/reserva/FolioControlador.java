@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 public class FolioControlador {
 
     private static final String PERSONAL = "hasAnyRole('RECEPCIONISTA', 'ADMINISTRADOR')";
+    /** Huésped (solo el folio de sus reservas, verificado en el caso de uso), recepción y administración. */
+    private static final String TITULAR_O_PERSONAL = "hasAnyRole('HUESPED', 'RECEPCIONISTA', 'ADMINISTRADOR')";
 
     public record PagoSolicitud(@NotNull @Positive BigDecimal valor, @NotBlank String medio, LocalDateTime fecha) {
     }
@@ -45,6 +47,7 @@ public class FolioControlador {
 
     /** El huésped solo consulta el folio de sus propias reservas. */
     @GetMapping
+    @PreAuthorize(TITULAR_O_PERSONAL)
     public FolioR consultar(@PathVariable String idReserva, @AuthenticationPrincipal Jwt jwt) {
         return FolioR.de(folios.consultar(idReserva, solicitante.de(jwt)));
     }

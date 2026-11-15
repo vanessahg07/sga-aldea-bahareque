@@ -171,6 +171,18 @@ class ApiIntegracionTest {
         }
 
         @Test
+        @DisplayName("El personal de servicio no consulta, cancela ni ve el folio de las reservas (matriz de roles)")
+        void personalDeServicioNoOperaReservas() throws Exception {
+            LocalDate entrada = hoy().plusDays(160);
+            String id = reservarPorPortal(token(LAURA), "BH-102", entrada, entrada.plusDays(2));
+            String servicio = token(SERVICIO);
+            ejecutar(get("/api/reservas/" + id), servicio, null).andExpect(status().isForbidden());
+            ejecutar(get("/api/reservas/" + id + "/folio"), servicio, null).andExpect(status().isForbidden());
+            ejecutar(post("/api/reservas/" + id + "/cancelacion"), servicio, null).andExpect(status().isForbidden());
+            ejecutar(get("/api/reservas/" + id), token(RECEPCION), null).andExpect(status().isOk());
+        }
+
+        @Test
         @DisplayName("Registro, perfil y recuperación de contraseña con código de un solo uso")
         void registroYRecuperacion() throws Exception {
             String correo = "nuevo.huesped@correo.com";
