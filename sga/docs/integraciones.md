@@ -1,4 +1,4 @@
-# Integraciones, reportes y despliegue (Corte 4)
+# Integraciones y reportes — SGA Aldea Bahareque
 
 Todas las integraciones siguen los requisitos comunes de la sección 10.3.3: están detrás de un puerto del dominio, tienen una alternativa local que funciona **sin internet y sin credenciales**, un tiempo de espera explícito y un comportamiento definido ante fallo. Cambiar de proveedor es **solo configuración** (variables de entorno); nunca requiere tocar código.
 
@@ -7,13 +7,24 @@ Todas las integraciones siguen los requisitos comunes de la sección 10.3.3: est
 | Integración | Puerto (I-01) | Alternativa local (I-02) | Proveedor real (I-07) | Tiempo máximo (I-03) | Si falla (I-04, I-05) |
 |---|---|---|---|---|---|
 | Canal externo | `ProcesadorReservasExternas`, `CanalVentaRepositorio`, `BitacoraCanalRepositorio` | El simulador (colección Bruno) contra el servidor local | Contrato propio del curso | Lo controla el cliente del canal | El canal recibe 401/403/409/422 con un código de negocio; todo intento queda en la bitácora |
-| Notificaciones | `Notificador` | `NotificadorEnMemoria` (log) | SMTP con clave de aplicación (Gmail) o un buzón de pruebas (Mailtrap, Ethereal) | 10 s de conexión, lectura y escritura | Se envía en segundo plano; el error queda en el log y la reserva o cancelación continúa |
-| Modelo de IA | `SugeridorGravedad` | `SugeridorGravedadSimulado` (reglas locales) o IA deshabilitada | Cualquier API compatible con `/chat/completions`: Ollama local, Groq o Gemini (nivel gratuito) | 5 s (`SugeridorConTiempoLimite`) | No aparece sugerencia y la interfaz lo dice; la persona elige la gravedad y registra la novedad igual |
-| Imágenes | `AlmacenImagenes` | `AlmacenImagenesLocal` (carpeta del servidor) | Cloudinary (plan gratuito, sin tarjeta) | 15 s | El administrador ve el aviso (503) y puede pegar la URL de una imagen ya publicada |
+| Notificaciones | `Notificador` | `NotificadorEnMemoria` (log) | **Brevo** por SMTP en el despliegue (puerto 2525); en local también Gmail con clave de aplicación o un buzón de pruebas (Mailtrap) | 10 s de conexión, lectura y escritura | Se envía en segundo plano; el error queda en el log y la reserva o cancelación continúa |
+| Modelo de IA | `SugeridorGravedad` | `SugeridorGravedadSimulado` (reglas locales) o IA deshabilitada | Cualquier API compatible con `/chat/completions`. En el despliegue, **OpenRouter** con un modelo gratuito; en local, Ollama o Groq | 5 s por defecto, 15 s en el despliegue (`SGA_IA_TIMEOUT_MS`, aplicado por `SugeridorConTiempoLimite`) | No aparece sugerencia y la interfaz lo dice; la persona elige la gravedad y registra la novedad igual |
+| Imágenes | `AlmacenImagenes` | `AlmacenImagenesLocal` (carpeta del servidor) | **Cloudinary** (plan gratuito, sin tarjeta) | 15 s | El administrador ve el aviso (503) y puede pegar la URL de una imagen ya publicada |
 | Mapa | (frontend) | Dirección y enlace a OpenStreetMap | Mapbox estático (`VITE_MAPBOX_TOKEN`) | Lo maneja el navegador | Se muestra la dirección sin mapa |
 
 - **I-06:** las credenciales viven en variables de entorno (tabla al final) y nunca se versionan. `.env` y `application-local.properties` están en `.gitignore`.
 - **I-08:** las pruebas automáticas usan siempre las alternativas locales: `IntegracionesApiTest` (canal, reportes, recordatorios, IA simulada e imágenes locales), `IaDeshabilitadaTest` (sistema con la IA apagada) y `SugeridorGravedadTest` (respuestas simuladas, modelo caído y tiempo límite).
+
+## Integraciones activas en el despliegue
+
+| Integración | Proveedor | Variables (valores secretos solo en el panel de Render) |
+|---|---|---|
+| Correo | Brevo, `smtp-relay.brevo.com:2525` | `SGA_NOTIFICACIONES=smtp`, `SGA_SMTP_HOST`, `SGA_SMTP_PUERTO`, `SGA_SMTP_USUARIO`, `SGA_SMTP_CLAVE`, `SGA_SMTP_REMITENTE` |
+| IA | OpenRouter, modelo `google/gemma-4-31b-it:free` | `SGA_IA_PROVEEDOR=openai`, `SGA_IA_URL=https://openrouter.ai/api/v1`, `SGA_IA_MODELO`, `SGA_IA_CLAVE`, `SGA_IA_TIMEOUT_MS=15000` |
+| Imágenes | Cloudinary | `SGA_IMAGENES=cloudinary`, `CLOUDINARY_URL` |
+| Base de datos | PostgreSQL de Render | `SPRING_PROFILES_ACTIVE=postgres` y `SGA_BD_*` (las conecta el Blueprint) |
+
+Cambiar cualquiera de estos proveedores por otro compatible, o por su alternativa local, es solo cambiar variables. El motivo de cada elección está en [decisiones-tecnicas.md](decisiones-tecnicas.md#dt-16--toda-integración-detrás-de-un-puerto-con-alternativa-local).
 
 ## Canal externo (10.3.1)
 
@@ -43,6 +54,19 @@ SGA_SMTP_USUARIO=cuenta@gmail.com
 SGA_SMTP_CLAVE=<clave de aplicación>
 ```
 
+En el despliegue se usa **Brevo**, porque el plan gratuito de Render bloquea los puertos SMTP 25, 465 y 587 y Brevo acepta el 2525:
+
+```bash
+SGA_NOTIFICACIONES=smtp
+SGA_SMTP_HOST=smtp-relay.brevo.com
+SGA_SMTP_PUERTO=2525
+SGA_SMTP_USUARIO=<login SMTP de Brevo, termina en @smtp-brevo.com>
+SGA_SMTP_CLAVE=<clave SMTP de Brevo>
+SGA_SMTP_REMITENTE=<remitente verificado en Brevo>
+```
+
+Si `SGA_SMTP_REMITENTE` se omite, se usa `SGA_SMTP_USUARIO` como remitente.
+
 ## Modelo de IA (10.2): sugerencia de gravedad de novedades
 
 Al registrar una novedad, el personal puede pedir una sugerencia de gravedad (baja, media, alta o crítica) con su justificación. La IA **solo sugiere**: la persona decide y la novedad se registra aunque la IA falle, tarde o esté apagada.
@@ -51,14 +75,17 @@ Al registrar una novedad, el personal puede pedir una sugerencia de gravedad (ba
 - **Proveedor simulado** (por defecto, sin conexión): `SGA_IA_PROVEEDOR=simulado`.
 - **Modelo local con Ollama:** `SGA_IA_PROVEEDOR=openai`, `SGA_IA_URL=http://localhost:11434/v1`, `SGA_IA_MODELO=llama3.2`.
 - **Groq (nivel gratuito):** `SGA_IA_URL=https://api.groq.com/openai/v1`, `SGA_IA_MODELO=llama-3.1-8b-instant`, `SGA_IA_CLAVE=<clave>`.
-- **OpenRouter (modelos gratuitos `:free`):** `SGA_IA_URL=https://openrouter.ai/api/v1`, `SGA_IA_MODELO=<modelo>:free`, `SGA_IA_CLAVE=<clave>`, `SGA_IA_TIMEOUT_MS=15000`.
+- **OpenRouter (modelos gratuitos `:free`, usado en el despliegue):** `SGA_IA_URL=https://openrouter.ai/api/v1`, `SGA_IA_MODELO=google/gemma-4-31b-it:free`, `SGA_IA_CLAVE=<clave>`, `SGA_IA_TIMEOUT_MS=15000`. Para usar los modelos gratuitos hay que permitirlos en *Settings → Privacy* de OpenRouter. Conviene un modelo de instrucciones sin razonamiento: responde dentro del tiempo máximo.
+
+El modelo recibe la descripción de la novedad y debe responder un JSON con `gravedad` (`BAJA`, `MEDIA`, `ALTA` o `CRITICA`) y `justificacion`. Si la respuesta no se puede interpretar, se trata como "sin sugerencia".
 
 ## Imágenes
 
 `POST /api/imagenes` (multipart, campo `archivo`, solo administrador) acepta JPG, PNG o WEBP de hasta 5 MB y devuelve la URL. En la ficha del apartamento, *Subir archivo* agrega la imagen a la galería; se guarda con *Guardar imágenes*.
 
 - **Local:** `SGA_IMAGENES=local` guarda en `./datos/imagenes` y publica en `/archivos/imagenes/...`.
-- **Cloudinary:** `SGA_IMAGENES=cloudinary` con `SGA_CLOUDINARY_NUBE`, `SGA_CLOUDINARY_CLAVE` y `SGA_CLOUDINARY_SECRETO` (subida firmada).
+- **Cloudinary (despliegue):** `SGA_IMAGENES=cloudinary` con `CLOUDINARY_URL=cloudinary://<clave>:<secreto>@<nube>`, tal como la muestra el panel de Cloudinary, o con `SGA_CLOUDINARY_NUBE`, `SGA_CLOUDINARY_CLAVE` y `SGA_CLOUDINARY_SECRETO` por separado (tienen prioridad). La subida es firmada: el secreto nunca sale del servidor.
+- En Render se usa Cloudinary porque el disco del servicio gratuito no es persistente: una imagen guardada en local se perdería en el siguiente reinicio.
 
 ## Reportes (7.9) e indicadores propios (L-19)
 
@@ -84,7 +111,7 @@ Nota: el SGA no guarda el histórico de activaciones del inventario, así que la
 
 ## Despliegue
 
-La persistencia se cambia **solo con configuración**, sin tocar el dominio ni los casos de uso:
+La persistencia y las integraciones se cambian **solo con configuración**:
 
 | Perfil | Base de datos | Activación |
 |---|---|---|
@@ -94,11 +121,7 @@ La persistencia se cambia **solo con configuración**, sin tocar el dominio ni l
 
 En los perfiles `prod` y `postgres` la clave del JWT es obligatoria: sin `SGA_JWT_SECRETO` la aplicación no arranca.
 
-**Despliegue:** el backend y la base de datos van en **Render** y el frontend en **Vercel**.
-
-- **Render:** *New → Blueprint* con este repositorio usa `render.yaml`, que crea la base PostgreSQL `sga-bd` y el servicio `sga-api` a partir del `Dockerfile` (solo backend). Render conecta la base y genera `SGA_JWT_SECRETO`; en el panel se completa `SGA_CORS_ORIGENES` con el dominio de Vercel y, si se quiere, `SGA_CONTRASENA_DEMO` y `SGA_CREDENCIAL_CANAL_DEMO`.
-- **Vercel:** proyecto con `frontend` como directorio raíz; `frontend/vercel.json` define la compilación y la redirección de rutas a `index.html`. La variable `VITE_API_URL` apunta al servicio de Render.
-- El disco del plan gratuito de Render no es persistente, por eso el blueprint usa `SGA_IMAGENES=cloudinary`: en el panel se carga `CLOUDINARY_URL` con el valor que muestra Cloudinary.
+La guía completa (arquitectura, pasos en Render y Vercel, por qué H2 en local y PostgreSQL en el despliegue, arranque en frío y casos de verificación) está en [despliegue.md](despliegue.md).
 
 Para probar la imagen del backend en local contra un PostgreSQL:
 
