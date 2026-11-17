@@ -4,11 +4,18 @@
 ![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-34533A)
 ![React 19](https://img.shields.io/badge/React-19-34533A)
 ![Pruebas](https://img.shields.io/badge/pruebas-271%20en%20verde-2F6B3E)
-![Estado](https://img.shields.io/badge/cortes-1%20a%204%20en%20código-C9A55A)
+![Estado](https://img.shields.io/badge/cortes-1%20a%204%20·%20desplegado-C9A55A)
 
 **SGA - Sistema de Gestión de Alojamiento** para *Aldea Bahareque*, siete apartamentos turísticos independientes en Filandia, Quindío, en el Paisaje Cultural Cafetero. El sistema gestiona inventario, tarifas por temporada, disponibilidad, reservas, operación diaria y folios, y vende por tres canales (portal, directo y agencias externas) sin vender nunca dos veces la misma noche.
 
 Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sistemas y Computación, Universidad del Quindío, 2026-2.
+
+| | |
+|---|---|
+| **Aplicación web** | https://sga-aldea-bahareque.vercel.app |
+| **API REST** | https://sga-api-ip10.onrender.com/api |
+
+> La API está en el plan gratuito de Render: después de 15 minutos sin uso se suspende y la primera petición tarda unos 2 minutos y medio mientras arranca. [Por qué pasa](docs/despliegue.md#la-primera-petición-tarda-arranque-en-frío).
 
 ## Contenido
 
@@ -35,22 +42,27 @@ Proyecto final de **Programación Avanzada** — Programa de Ingeniería de Sist
 
 ## Estado actual
 
-Los cuatro cortes están implementados en código y pasan sus 271 pruebas. Falta lo que depende de cuentas o aprobaciones externas:
+Los cuatro cortes están implementados, pasan sus 271 pruebas automáticas y el sistema está desplegado:
 
-| Pendiente | Detalle |
+| Componente | Estado |
 |---|---|
-| Publicar el despliegue | Backend y PostgreSQL en Render (`render.yaml`) y frontend en Vercel (`frontend/vercel.json`) están listos y probados localmente; falta crearlos con las cuentas (ver [Despliegue](#despliegue)) |
-| Probar correo e IA reales | Funcionan con sus alternativas locales (memoria y simulado); falta configurar credenciales SMTP y un proveedor de IA |
-| Aprobación de las reglas propias | RP-01, RP-02 y RP-03 están implementadas y probadas; falta la aprobación del docente |
+| Backend (API REST) | Desplegado en Render con Docker, perfil `postgres` |
+| Base de datos | PostgreSQL gestionado de Render |
+| Frontend | Desplegado en Vercel |
+| Correo | Activo con Brevo (SMTP) |
+| Sugerencia de gravedad con IA | Activa con OpenRouter (modelo gratuito) |
+| Imágenes | Activas con Cloudinary |
+
+Pendiente: la aprobación del docente de las reglas propias RP-01, RP-02 y RP-03, que ya están implementadas y probadas.
 
 ## División de las entregas
 
 | Corte | Alcance | Estado | Etiqueta |
 |---|---|---|---|
 | **1** | Ficha del Alojamiento, lenguaje ubicuo, modelo del negocio, casos de uso y **dominio con sus reglas invariantes y pruebas unitarias**; diseño de la API | Terminado | `entrega-1` |
-| **2** | Usuarios y seguridad (JWT y roles), persistencia JPA, alojamiento, apartamentos, bloqueos, temporadas y tarifas, disponibilidad, cotización, reservas y folio **operando por API** | Terminado en código | `entrega-2` |
-| **3** | Interfaz web en React: búsqueda, detalle, reserva, registro y salida, estado operativo, folio, cancelaciones y administración | Terminado en código | `entrega-3` |
-| **4** | Canal externo con conflictos e idempotencia, notificaciones por correo, IA no bloqueante, imágenes, reportes, recordatorios automáticos y **sistema desplegado** | Terminado en código · despliegue pendiente | `entrega-4` |
+| **2** | Usuarios y seguridad (JWT y roles), persistencia JPA, alojamiento, apartamentos, bloqueos, temporadas y tarifas, disponibilidad, cotización, reservas y folio **operando por API** | Terminado | `entrega-2` |
+| **3** | Interfaz web en React: búsqueda, detalle, reserva, registro y salida, estado operativo, folio, cancelaciones y administración | Terminado | `entrega-3` |
+| **4** | Canal externo con conflictos e idempotencia, notificaciones por correo, IA no bloqueante, imágenes, reportes, recordatorios automáticos y **sistema desplegado** | Terminado y desplegado | `entrega-4` |
 
 Cada entrega se marca con su etiqueta: con `git checkout entrega-N` se ve el proyecto tal como quedó en ese corte.
 
@@ -58,10 +70,10 @@ Cada entrega se marca con su etiqueta: con `git checkout entrega-N` se ve el pro
 
 | Rol | Puede |
 |---|---|
-| **Huésped** | Buscar apartamentos por fechas y grupo, ver el detalle con galería y calendario, cotizar con desglose noche por noche, reservar, cancelar y consultar su folio |
+| **Huésped** | Buscar apartamentos por fechas y grupo, ver el detalle con galería y calendario, cotizar con desglose noche por noche, reservar, cancelar, consultar su folio y recuperar su contraseña por correo |
 | **Recepcionista** | Crear reservas directas, modificar, confirmar, registrar pagos, llegadas y salidas, declarar no-show y ver la ocupación del día |
 | **Personal de servicio** | Ver los apartamentos por preparar, avanzar su preparación y registrar novedades (con sugerencia de gravedad por IA) |
-| **Administrador** | Gestionar el alojamiento, apartamentos, bloqueos, temporadas, tarifas, políticas de cancelación, usuarios, canales externos y conflictos, y consultar reportes |
+| **Administrador** | Gestionar el alojamiento, apartamentos e imágenes, bloqueos, temporadas, tarifas, políticas de cancelación, usuarios, canales externos y conflictos, y consultar reportes y recordatorios |
 | **Canal externo** | Consultar disponibilidad y crear o cancelar reservas con su credencial, sin duplicar mensajes repetidos |
 
 Reglas destacadas del negocio: no hay doble venta sin importar el canal (RN-01), la capacidad es un tope rígido (RN-02), el precio y la política quedan congelados al reservar (RN-22), el folio nunca borra movimientos (RN-16) y las reservas pendientes vencen solas a las 24 horas (RN-21). Reglas propias: estancia mínima en temporada alta (RP-01), descuento por estancia larga (RP-02) y mascotas con cargo (RP-03).
@@ -71,19 +83,25 @@ Reglas destacadas del negocio: no hay doble venta sin importar el canal (RN-01),
 | Capa | Tecnología |
 |---|---|
 | Backend | Java 25, Spring Boot 4.1 (Web MVC, Data JPA, Validation, Security con JWT, Mail), Gradle 9.7 |
-| Base de datos | H2 en memoria (desarrollo), H2 en archivo (perfil `prod`) o PostgreSQL (perfil `postgres`) |
+| Base de datos | H2 en memoria (desarrollo), H2 en archivo (perfil `prod`) o PostgreSQL (perfil `postgres`, despliegue) |
 | Frontend | React 19, TypeScript, Vite, Material UI 9, React Router y TanStack Query |
-| Integraciones | SMTP, IA compatible con `/chat/completions` (Ollama, Groq…), Cloudinary; todas con alternativa local sin internet |
+| Integraciones | Correo SMTP (Brevo), IA compatible con `/chat/completions` (OpenRouter, Ollama, Groq) y Cloudinary; todas con alternativa local sin internet |
 | Despliegue | Backend en Render (Docker) con PostgreSQL de Render; frontend en Vercel |
 | Pruebas de API | Colección [Bruno](https://www.usebruno.com/) en `bruno/` |
 
+El porqué de cada decisión está en [docs/decisiones-tecnicas.md](docs/decisiones-tecnicas.md).
+
 ## Cómo ejecutar
 
-### Requisitos
+### Opción rápida: el sistema desplegado
+
+Abrir https://sga-aldea-bahareque.vercel.app. Si la API estaba suspendida, la primera carga tarda unos 2 minutos.
+
+### Requisitos para ejecutarlo en local
 
 - **JDK 25.** En Windows: `winget install EclipseAdoptium.Temurin.25.JDK`, o descargarlo de [adoptium.net](https://adoptium.net) marcando *Set JAVA_HOME*.
 - **Node.js 20 o superior** (solo para el frontend).
-- No hace falta instalar Gradle: el proyecto incluye el wrapper (`gradlew`).
+- No hace falta instalar Gradle ni una base de datos: el proyecto incluye el wrapper (`gradlew`) y en desarrollo usa H2 en memoria.
 
 ### 1. Backend
 
@@ -96,6 +114,8 @@ Reglas destacadas del negocio: no hay doble venta sin importar el canal (RN-01),
 
 Al arrancar se cargan los datos de la Ficha del Alojamiento: 7 apartamentos con tarifas completas, temporadas, política de cancelación, un usuario por rol y reservas en los seis estados por los tres canales. Las fechas se calculan desde el día actual, así que siempre hay una llegada y una salida "de hoy".
 
+En desarrollo la base es **en memoria**: al detener el backend se borran los cambios y el siguiente arranque vuelve a los datos de demostración. Es intencional (ver [por qué](docs/despliegue.md#por-qué-h2-en-local-y-postgresql-en-el-despliegue)).
+
 ### 2. Frontend
 
 Con el backend corriendo, en otra terminal:
@@ -105,7 +125,6 @@ cd frontend
 npm install
 npm run dev              # http://localhost:5173
 ```
-
 
 ### Usuarios de demostración
 
@@ -117,7 +136,7 @@ npm run dev              # http://localhost:5173
 | Huésped | `laura.gomez@correo.com` |
 | Huésped | `carlos.mejia@correo.com` |
 
-La contraseña de todos es `Bahareque2026`, o la que se defina en `SGA_CONTRASENA_DEMO`.
+En local, la contraseña de todos es `Bahareque2026`. En el despliegue es la definida en `SGA_CONTRASENA_DEMO` en Render, que no se publica en el repositorio.
 
 ### Colección de peticiones
 
@@ -134,40 +153,28 @@ Ningún secreto se versiona: todo se configura con variables de entorno y cada i
 | `SGA_CORS_ORIGENES` | Dominio del frontend desplegado (Vercel), separados por coma | Solo `localhost` |
 | `SGA_CONTRASENA_DEMO` | Contraseña de los usuarios de demostración | `Bahareque2026` |
 | `SGA_CREDENCIAL_CANAL_DEMO` | Credencial del canal de demostración ViajaEje | Se genera y se muestra en el log |
-| `SGA_NOTIFICACIONES` | `memoria` o `smtp` | `memoria` |
-| `SGA_IA_HABILITADA`, `SGA_IA_PROVEEDOR` | Sugerencia de gravedad por IA: `simulado` u `openai` | Habilitada, `simulado` |
-| `SGA_IMAGENES` | `local` o `cloudinary` | `local` (en Render, `cloudinary`) |
-| `CLOUDINARY_URL` | Credenciales de Cloudinary en una sola variable (`cloudinary://clave:secreto@nube`) | — |
+| `SGA_NOTIFICACIONES` y `SGA_SMTP_*` | `memoria` o `smtp`, y los datos del servidor de correo | `memoria` |
+| `SGA_IA_HABILITADA`, `SGA_IA_PROVEEDOR`, `SGA_IA_URL`, `SGA_IA_MODELO`, `SGA_IA_CLAVE`, `SGA_IA_TIMEOUT_MS` | Sugerencia de gravedad: `simulado` u `openai` (cualquier API `/chat/completions`) | Habilitada, `simulado`, 5 s |
+| `SGA_IMAGENES`, `CLOUDINARY_URL` | `local` o `cloudinary`, y las credenciales de Cloudinary | `local` |
 | `SGA_BD_HOST`, `SGA_BD_PUERTO`, `SGA_BD_NOMBRE`, `SGA_BD_USUARIO`, `SGA_BD_CLAVE` | Conexión a PostgreSQL (perfil `postgres`); o la URL JDBC completa en `SGA_BD_URL` | — |
 | `VITE_API_URL` (frontend) | Dominio del backend desplegado | Vacío: en desarrollo Vite reenvía `/api` al puerto 9090 |
 
-La lista completa (SMTP, IA, Cloudinary, PostgreSQL y despliegue) está en [docs/integraciones.md](docs/integraciones.md).
+La lista completa está en [docs/integraciones.md](docs/integraciones.md#variables-de-entorno) y los valores usados en el despliegue, en [docs/despliegue.md](docs/despliegue.md#variables-de-entorno-en-render).
 
 ## Despliegue
 
-El backend y su base de datos se publican en **Render**; el frontend, en **Vercel**.
-
 ```
 Navegador ──► Vercel (frontend React) ──► Render (API Spring Boot, perfil postgres) ──► PostgreSQL de Render
+                                                 ├──► Cloudinary (imágenes)
+                                                 ├──► Brevo (correo SMTP)
+                                                 └──► OpenRouter (IA)
 ```
 
-### 1. Backend y base de datos en Render
+- **Render:** `render.yaml` (Blueprint) crea la base `sga-bd` y el servicio `sga-api`, construido con el `Dockerfile`. Render conecta la base y genera la clave del JWT; los demás secretos se escriben en su panel.
+- **Vercel:** usa `frontend` como directorio raíz (`sga/frontend` en el repositorio), con `VITE_API_URL` apuntando a Render.
+- **Base de datos:** H2 en local para trabajar sin instalar nada; PostgreSQL en el despliegue porque el disco de Render no es persistente.
 
-1. Subir el repositorio a GitHub.
-2. En Render: **New → Blueprint**, elegir el repositorio. Render lee `render.yaml` y crea la base `sga-bd` (PostgreSQL) y el servicio `sga-api`, que se construye con el `Dockerfile`.
-3. Render genera `SGA_JWT_SECRETO` y conecta la base automáticamente. En el panel del servicio quedan por completar:
-   - `SGA_CORS_ORIGENES`: el dominio de Vercel (paso 2), por ejemplo `https://sga-aldea-bahareque.vercel.app`.
-   - `CLOUDINARY_URL`: la variable de entorno que muestra el panel de Cloudinary, para guardar las imágenes subidas.
-   - `SGA_CONTRASENA_DEMO` y `SGA_CREDENCIAL_CANAL_DEMO` (opcionales).
-4. Al primer arranque se crean las tablas y se cargan los datos de demostración. Comprobar en `https://<servicio>.onrender.com/api/alojamiento`.
-
-En el plan gratuito el servicio se suspende tras un rato sin uso (la primera petición tarda unos segundos), el disco no es persistente (por eso las imágenes subidas van a Cloudinary) y la base gratuita tiene vigencia limitada.
-
-### 2. Frontend en Vercel
-
-1. En Vercel: **Add New → Project**, importar el repositorio y elegir `frontend` como **Root Directory**. `frontend/vercel.json` define la compilación y redirige todas las rutas a `index.html`.
-2. En **Environment Variables**: `VITE_API_URL=https://<servicio>.onrender.com` (sin barra final) y, si se tiene, `VITE_MAPBOX_TOKEN`.
-3. Desplegar y copiar el dominio asignado en `SGA_CORS_ORIGENES` del backend en Render.
+La guía completa, con los pasos, las variables, el arranque en frío, los límites del plan gratuito y los casos de verificación, está en [docs/despliegue.md](docs/despliegue.md).
 
 ## Estructura del proyecto
 
@@ -181,18 +188,21 @@ sga/
 │   └── infrastructure/
 │       ├── persistencia/  Entidades JPA y adaptadores de los repositorios
 │       ├── rest/          Controladores, DTOs y manejo de errores
-│       ├── seguridad/     JWT, roles y cifrado de contraseñas
+│       ├── seguridad/     JWT, roles, CORS y cifrado de contraseñas
 │       ├── notificacion/  Notificador en memoria y por correo SMTP
 │       ├── ia/            Sugerencia de gravedad simulada o con un modelo externo
 │       ├── imagenes/      Almacén de imágenes local o en Cloudinary
-│       └── configuracion/ Beans del dominio, tareas programadas y datos de prueba
+│       └── configuracion/ Propiedades, beans del dominio, tareas programadas y datos de prueba
+├── src/main/resources/    Configuración por perfil (desarrollo, prod y postgres)
 ├── src/test/              Pruebas del dominio (AAA, fechas fijas) y de integración de la API
 ├── frontend/              Interfaz React (ver frontend/README.md)
 ├── bruno/                 Colección de peticiones y simulador del canal externo
-├── docs/                  Documentación del proyecto y de las entregas
+├── docs/                  Documentación de soporte
 ├── Dockerfile             Imagen del backend para Render
 └── render.yaml            Blueprint de Render: PostgreSQL y servicio web del backend
 ```
+
+Detalle por paquete, del frontend y de la colección Bruno en [docs/estructura-del-proyecto.md](docs/estructura-del-proyecto.md).
 
 ## Pruebas
 
@@ -203,6 +213,7 @@ sga/
 - **Dominio:** cada regla invariante (RN-01 a RN-22) y cada regla propia (RP-01 a RP-03) tiene casos que la cumplen y casos que la violan. No usan Spring ni base de datos, siguen el patrón AAA y usan fechas fijas.
 - **API:** `ApiIntegracionTest` recorre la API real con seguridad y persistencia: roles, restricción por propietario, doble venta, anticipo, llegada y salida con folio.
 - **Integraciones:** `IntegracionesApiTest` (canal externo, reportes, recordatorios, IA e imágenes) e `IaDeshabilitadaTest` (el sistema opera con la IA apagada). Nunca llaman servicios externos reales.
+- **Seguridad y configuración:** `ClaveJwtTest` (clave obligatoria en el despliegue) y `CredencialesCloudinaryTest` (lectura de `CLOUDINARY_URL`).
 
 El reporte queda en `build/reports/tests/test/index.html`. Para compilar el frontend: `cd frontend` y `npm run build`.
 
@@ -215,7 +226,12 @@ El reporte queda en `build/reports/tests/test/index.html`. Para compilar el fron
 | [Modelo del negocio](docs/modelo-negocio.md) | Paquetes, ciclos de vida, decisiones de diseño y trazabilidad de reglas |
 | [Casos de uso](docs/casos-de-uso.md) | Casos por rol y el corte en que se exponen |
 | [Referencia de la API](docs/api.md) | Endpoints, roles, parámetros y errores |
-| [Integraciones y despliegue](docs/integraciones.md) | Canal externo, correo, IA, imágenes, reportes, recordatorios, variables de entorno y despliegue |
+| [Integraciones](docs/integraciones.md) | Canal externo, correo, IA, imágenes, reportes, recordatorios y variables de entorno |
+| [Decisiones técnicas](docs/decisiones-tecnicas.md) | Justificación de la arquitectura, las tecnologías, la seguridad y la infraestructura |
+| [Despliegue](docs/despliegue.md) | Render, Vercel, H2 frente a PostgreSQL, arranque en frío, límites y verificación |
+| [Solución de problemas](docs/solucion-de-problemas.md) | Errores frecuentes en local, en el despliegue y en las integraciones |
+| [Estructura del proyecto](docs/estructura-del-proyecto.md) | Organización del repositorio, del backend, del frontend y de la documentación |
+| [Diagramas](docs/diagramas) | Diagrama de clases y mapa de agregados |
 | [Entregas](docs/entregas) | Documentos entregados en cada corte |
 
 ## Forma de trabajo en Git
@@ -229,16 +245,21 @@ El reporte queda en `build/reports/tests/test/index.html`. Para compilar el fron
 ## Problemas frecuentes
 
 **`Cannot find a Java installation on your machine … languageVersion=25`**
-El equipo no tiene el JDK 25. Instálalo (ver [Requisitos](#requisitos)), cierra y vuelve a abrir la terminal, ejecuta `.\gradlew.bat --stop` y repite el comando.
-
-**La primera ejecución tarda varios minutos**
-Es normal: el wrapper descarga Gradle y las dependencias una sola vez.
+El equipo no tiene el JDK 25. Instálalo (ver [Requisitos](#requisitos-para-ejecutarlo-en-local)), cierra y vuelve a abrir la terminal, ejecuta `.\gradlew.bat --stop` y repite el comando.
 
 **`'gradlew' no se reconoce como un comando`**
 En PowerShell hay que escribir `.\gradlew.bat`, con el punto y la barra al inicio.
 
-**El frontend muestra errores de conexión**
+**Los datos desaparecen al reiniciar el backend en local**
+Es lo esperado con H2 en memoria. Para conservarlos, usar el perfil `prod`.
+
+**El frontend local muestra errores de conexión**
 El backend debe estar corriendo en el puerto 9090: Vite reenvía `/api` a esa dirección.
 
-**Las sesiones se cierran al reiniciar el backend**
-Sin `SGA_JWT_SECRETO` se genera una clave nueva en cada arranque. Defínela para conservar las sesiones.
+**La aplicación desplegada tarda en responder o muestra un error de conexión**
+La API de Render estaba suspendida y está arrancando. Esperar unos 2 minutos y repetir. No se pierden datos.
+
+**La sesión se cierra sola**
+Los tokens duran 60 minutos. Volver a iniciar sesión.
+
+Más casos (Render, Vercel, CORS, correo, IA, imágenes) en [docs/solucion-de-problemas.md](docs/solucion-de-problemas.md).
